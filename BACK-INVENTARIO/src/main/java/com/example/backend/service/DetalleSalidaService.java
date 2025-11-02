@@ -11,108 +11,48 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
 @Service
 @RequiredArgsConstructor
-public class DetalleSalidaService  {
+public class DetalleSalidaService {
 
     private final Detalle_SalidaRepository detalle_SalidaRepository;
-    private  final ProductoRepository   productoRepository;
+    private final ProductoRepository productoRepository;
     private final SalidaRepository salidaRepository;
 
+    // ------------------ CONSTANTES ------------------
+    private static final String ERROR_LISTA_VACIA = "La lista de detalles de salida no puede estar vacía";
+    private static final String ERROR_FECHA_INVALIDA = "Cada detalle debe tener una fecha de salida válida";
+    private static final String ERROR_PRODUCTO_NO_ENCONTRADO = "Producto no encontrado con ID: %d";
+    private static final String ERROR_CANTIDAD_INVALIDA = "La cantidad debe ser mayor a cero para el producto: %s";
+    private static final String ERROR_STOCK_INSUFICIENTE = "Stock insuficiente para el producto: %s";
+    private static final String ERROR_DETALLE_NO_ENCONTRADO = "Detalle no encontrado";
 
-
-    public DetalleSalida obtenerPorId(Long id) {
-        return detalle_SalidaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
-    }
-
-
-    public List<DetalleSalida> obtenerTodas() {
-        return detalle_SalidaRepository.findAll();
-    }
-
-
-    public Map<String, Boolean> actualizarDetalleSalida(Long detalleSalidaId, DetalleSalida detalleEntrada) {
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("success", false);
-
-        Optional<DetalleSalida> detalleExistenteOpt = detalle_SalidaRepository.findById(detalleSalidaId);
-        if (detalleExistenteOpt.isEmpty()) {
-            return response; // No existe el detalle
-        }
-
-        DetalleSalida detalleExistente = detalleExistenteOpt.get();
-
-        // Ajuste del stock si cambia la cantidad
-        int cantidadAntigua = detalleExistente.getCantidad();
-        int cantidadNueva = detalleEntrada.getCantidad();
-
-        if (cantidadNueva != cantidadAntigua) {
-            Producto producto = detalleEntrada.getProducto();
-            Producto productoActualizado = productoRepository.findById(producto.getProductoId()).orElse(null);
-
-            if (productoActualizado == null) {
-                return response; // Producto no encontrado
-            }
-
-            int diferenciaCantidad = cantidadNueva - cantidadAntigua;
-            int nuevoStock = productoActualizado.getStock() - diferenciaCantidad;
-            productoActualizado.setStock(nuevoStock);
-            productoRepository.save(productoActualizado);
-        }
-
-        // Actualizar los campos del detalle
-        detalleExistente.setProducto(detalleEntrada.getProducto());
-        detalleExistente.setDescripcion(detalleEntrada.getDescripcion());
-        detalleExistente.setCantidad(detalleEntrada.getCantidad());
-
-        detalle_SalidaRepository.save(detalleExistente);
-        response.put("success", true);
-
-        return response;
-    }
-
-
+    // ------------------ CREAR DETALLES ------------------
     public List<DetalleSalida> crearDetalleSalida(List<DetalleSalida> listaDetalleSalida) {
-        List<DetalleSalida> guardados = new ArrayList<>();
         if (listaDetalleSalida == null || listaDetalleSalida.isEmpty()) {
-            throw new IllegalArgumentException("La lista de detalles de salida no puede estar vacía");
+            throw new IllegalArgumentException(ERROR_LISTA_VACIA);
         }
 
+        List<DetalleSalida> guardados = new ArrayList<>();
 
         for (DetalleSalida detalle : listaDetalleSalida) {
-            if (detalle.getSalida() == null || detalle.getSalida().getFechaSalida() == null) {
-                throw new IllegalArgumentException("Cada detalle debe tener una fecha de salida válida");
-            }
-            // Buscar salida existente por fecha
-            Optional<Salidas> salidaExistenteOpt = salidaRepository.findByFechaSalida(detalle.getSalida().getFechaSalida());
-            Salidas salidaGuardada;
+            validarDetalleSalida(detalle);
 
-            if (salidaExistenteOpt.isPresent()) {
-                salidaGuardada = salidaExistenteOpt.get();
-            } else {
-                Salidas nuevaSalida = new Salidas();
-                nuevaSalida.setFechaSalida(detalle.getSalida().getFechaSalida());
-                salidaGuardada = salidaRepository.save(nuevaSalida);
-            }
-
+            Salidas salidaGuardada = obtenerOCrearSalida(detalle.getSalida().getFechaSalida());
             detalle.setSalida(salidaGuardada);
 
-            // 🧮 Validar y actualizar el stock del producto
-            Producto producto = productoRepository.findById(detalle.getProducto().getProductoId())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + detalle.getProducto().getProductoId()));
+            Producto producto = obtenerProducto(detalle.getProducto().getProductoId());
 
             if (detalle.getCantidad() <= 0) {
-                throw new IllegalArgumentException("La cantidad debe ser mayor a cero para el producto: " + producto.getNombre());
+                throw new IllegalArgumentException(String.format(ERROR_CANTIDAD_INVALIDA, producto.getNombre()));
             }
 
             if (producto.getStock() < detalle.getCantidad()) {
-                throw new IllegalStateException("Stock insuficiente para el producto: " + producto.getNombre());
+                throw new IllegalStateException(String.format(ERROR_STOCK_INSUFICIENTE, producto.getNombre()));
             }
 
-            int nuevoStock = producto.getStock() - detalle.getCantidad();
-            producto.setStock(nuevoStock);
+            // Actualizar stock
+            producto.setStock(producto.getStock() - detalle.getCantidad());
             productoRepository.save(producto);
 
             // Guardar detalle
@@ -120,5 +60,74 @@ public class DetalleSalidaService  {
         }
 
         return guardados;
+    }
+
+    // ------------------ OBTENER ------------------
+    public DetalleSalida obtenerPorId(Long id) {
+        return detalle_SalidaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(ERROR_DETALLE_NO_ENCONTRADO));
+    }
+
+    public List<DetalleSalida> obtenerTodas() {
+        return detalle_SalidaRepository.findAll();
+    }
+
+    // ------------------ ACTUALIZAR ------------------
+    public Map<String, Boolean> actualizarDetalleSalida(Long detalleSalidaId, DetalleSalida detalleSalida) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", false);
+
+        DetalleSalida detalleExistente = detalle_SalidaRepository.findById(detalleSalidaId)
+                .orElse(null);
+
+        if (detalleExistente == null) {
+            return response; // Detalle no encontrado
+        }
+
+        Producto productoExistente = detalleExistente.getProducto();
+        Producto productoNuevo = obtenerProducto(detalleSalida.getProducto().getProductoId());
+
+        // Ajuste de stock
+        int diferencia = detalleSalida.getCantidad() - detalleExistente.getCantidad();
+        if (diferencia != 0) {
+            if (productoNuevo.getStock() < diferencia) {
+                throw new IllegalStateException(String.format(ERROR_STOCK_INSUFICIENTE, productoNuevo.getNombre()));
+            }
+            productoNuevo.setStock(productoNuevo.getStock() - diferencia);
+            productoRepository.save(productoNuevo);
+        }
+
+        // Actualizar detalle
+        detalleExistente.setProducto(productoNuevo);
+        detalleExistente.setDescripcion(detalleSalida.getDescripcion());
+        detalleExistente.setCantidad(detalleSalida.getCantidad());
+        detalle_SalidaRepository.save(detalleExistente);
+
+        response.put("success", true);
+        return response;
+    }
+
+    // ------------------ MÉTODOS PRIVADOS ------------------
+    private void validarDetalleSalida(DetalleSalida detalle) {
+        if (detalle.getSalida() == null || detalle.getSalida().getFechaSalida() == null) {
+            throw new IllegalArgumentException(ERROR_FECHA_INVALIDA);
+        }
+        if (detalle.getProducto() == null || detalle.getProducto().getProductoId() == null) {
+            throw new IllegalArgumentException("Detalle debe contener un producto válido");
+        }
+    }
+
+    private Salidas obtenerOCrearSalida(Date fechaSalida) {
+        return salidaRepository.findByFechaSalida(fechaSalida)
+                .orElseGet(() -> {
+                    Salidas nuevaSalida = new Salidas();
+                    nuevaSalida.setFechaSalida(fechaSalida);
+                    return salidaRepository.save(nuevaSalida);
+                });
+    }
+
+    private Producto obtenerProducto(Long productoId) {
+        return productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException(String.format(ERROR_PRODUCTO_NO_ENCONTRADO, productoId)));
     }
 }

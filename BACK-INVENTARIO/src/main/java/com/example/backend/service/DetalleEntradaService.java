@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,43 +22,36 @@ public class DetalleEntradaService {
     private final EntradaRepository entradaRepository;
     private final ProductoRepository productoRepository;
 
+    // ------------------ CONSTANTES ------------------
+    private static final String ERROR_LISTA_VACIA = "La lista de detalles de entrada no puede estar vacía";
+    private static final String ERROR_FECHA_INVALIDA = "Cada detalle debe incluir una fecha de entrada válida";
+    private static final String ERROR_PRODUCTO_NO_ENCONTRADO = "Producto no encontrado con ID: %d";
+    private static final String ERROR_CANTIDAD_INVALIDA = "La cantidad debe ser mayor a cero para el producto: %s";
+    private static final String ERROR_DETALLE_NO_ENCONTRADO = "Detalle no encontrado";
+    private static final String ERROR_PRODUCTO_NULL = "Producto no encontrado";
 
-
+    // ------------------ CREAR DETALLES ------------------
     public List<DetalleEntrada> crearDetalleEntrada(List<DetalleEntrada> listaDetalleEntrada) {
         if (listaDetalleEntrada == null || listaDetalleEntrada.isEmpty()) {
-            throw new IllegalArgumentException("La lista de detalles de entrada no puede estar vacía");
+            throw new IllegalArgumentException(ERROR_LISTA_VACIA);
         }
+
         List<DetalleEntrada> guardados = new ArrayList<>();
 
         for (DetalleEntrada detalle : listaDetalleEntrada) {
-            if (detalle.getEntrada() == null || detalle.getEntrada().getFechaEntrada() == null) {
-                throw new IllegalArgumentException("Cada detalle debe incluir una fecha de entrada válida");
-            }
-            // Buscar entrada existente por fecha
-            Optional<Entradas> entradaExistenteOpt = entradaRepository.findByFechaEntrada(detalle.getEntrada().getFechaEntrada());
-            Entradas entradaGuardada;
+            validarDetalleEntrada(detalle);
 
-            if (entradaExistenteOpt.isPresent()) {
-                entradaGuardada = entradaExistenteOpt.get();
-            } else {
-                Entradas nuevaEntrada = new Entradas();
-                nuevaEntrada.setFechaEntrada(detalle.getEntrada().getFechaEntrada());
-                entradaGuardada = entradaRepository.save(nuevaEntrada);
-            }
-
+            Entradas entradaGuardada = obtenerOCrearEntrada(detalle.getEntrada().getFechaEntrada());
             detalle.setEntrada(entradaGuardada);
 
-            // 🧩 Validar y actualizar stock del producto
-            Producto producto = productoRepository.findById(detalle.getProducto().getProductoId())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + detalle.getProducto().getProductoId()));
+            Producto producto = obtenerProducto(detalle.getProducto().getProductoId());
 
             if (detalle.getCantidad() <= 0) {
-                throw new IllegalArgumentException("La cantidad debe ser mayor a cero para el producto: " + producto.getNombre());
+                throw new IllegalArgumentException(String.format(ERROR_CANTIDAD_INVALIDA, producto.getNombre()));
             }
 
-
-            int nuevoStock = producto.getStock() + detalle.getCantidad();
-            producto.setStock(nuevoStock);
+            // Actualizar stock del producto
+            producto.setStock(producto.getStock() + detalle.getCantidad());
             productoRepository.save(producto);
 
             // Guardar detalle
@@ -68,35 +61,58 @@ public class DetalleEntradaService {
         return guardados;
     }
 
-
+    // ------------------ OBTENER POR ID ------------------
     public DetalleEntrada obtenerPorId(Long id) {
         return detalle_EntradaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
+                .orElseThrow(() -> new RuntimeException(ERROR_DETALLE_NO_ENCONTRADO));
     }
 
-
+    // ------------------ OBTENER TODOS ------------------
     public List<DetalleEntrada> obtenerTodos() {
         return detalle_EntradaRepository.findAll();
     }
 
-
+    // ------------------ ACTUALIZAR DETALLE ------------------
     public DetalleEntrada actualizarDetalleEntrada(Long detalleEntradaId, DetalleEntrada detalleEntrada) {
         DetalleEntrada existente = detalle_EntradaRepository.findById(detalleEntradaId)
-                .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
-
-        int cantidadAntigua = existente.getCantidad();
-        int cantidadNueva = detalleEntrada.getCantidad();
+                .orElseThrow(() -> new RuntimeException(ERROR_DETALLE_NO_ENCONTRADO));
 
         Producto producto = existente.getProducto();
-        if (producto == null) throw new RuntimeException("Producto no encontrado");
+        if (producto == null) throw new RuntimeException(ERROR_PRODUCTO_NULL);
 
-        int diferencia = cantidadNueva - cantidadAntigua;
+        // Ajustar stock según diferencia
+        int diferencia = detalleEntrada.getCantidad() - existente.getCantidad();
         producto.setStock(producto.getStock() + diferencia);
         productoRepository.save(producto);
 
+        // Actualizar detalle
         existente.setCantidad(detalleEntrada.getCantidad());
         existente.setDescripcion(detalleEntrada.getDescripcion());
 
         return detalle_EntradaRepository.save(existente);
+    }
+
+    // ------------------ MÉTODOS PRIVADOS ------------------
+    private void validarDetalleEntrada(DetalleEntrada detalle) {
+        if (detalle.getEntrada() == null || detalle.getEntrada().getFechaEntrada() == null) {
+            throw new IllegalArgumentException(ERROR_FECHA_INVALIDA);
+        }
+        if (detalle.getProducto() == null || detalle.getProducto().getProductoId() == null) {
+            throw new IllegalArgumentException("Detalle debe contener un producto válido");
+        }
+    }
+
+    private Entradas obtenerOCrearEntrada(Date fechaEntrada) {
+        return entradaRepository.findByFechaEntrada(fechaEntrada)
+                .orElseGet(() -> {
+                    Entradas nuevaEntrada = new Entradas();
+                    nuevaEntrada.setFechaEntrada(fechaEntrada);
+                    return entradaRepository.save(nuevaEntrada);
+                });
+    }
+
+    private Producto obtenerProducto(Long productoId) {
+        return productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException(String.format(ERROR_PRODUCTO_NO_ENCONTRADO, productoId)));
     }
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 

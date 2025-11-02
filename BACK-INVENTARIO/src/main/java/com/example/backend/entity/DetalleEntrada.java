@@ -40,7 +40,7 @@ public class DetalleEntrada {
 	private String descripcion;
 
 	@ManyToOne
-	@JoinColumn(name = "de_usuario", referencedColumnName = "lg_codigo", nullable = false)
+	@JoinColumn(name = "de_usuario", referencedColumnName = "us_codigo", nullable = false)
 	private Usuario usuario;
 
 	@ManyToOne

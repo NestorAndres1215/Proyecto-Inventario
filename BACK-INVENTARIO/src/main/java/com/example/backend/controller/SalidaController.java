@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.example.backend.entity.DetalleSalida;
 import com.example.backend.service.DetalleSalidaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import com.example.backend.entity.Detalle_Salida;
-
 @RestController
 @RequestMapping("/salidas")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
@@ -31,9 +30,9 @@ public class SalidaController {
 
 
     @PostMapping("/")
-    public ResponseEntity<List<Detalle_Salida>> crearDetalleSalida(@RequestBody List<Detalle_Salida> listaDetalleSalida) {
+    public ResponseEntity<List<DetalleSalida>> crearDetalleSalida(@RequestBody List<DetalleSalida> listaDetalleSalida) {
         try {
-            List<Detalle_Salida> guardados = detalleSalidaService.crearDetalleSalida(listaDetalleSalida);
+            List<DetalleSalida> guardados = detalleSalidaService.crearDetalleSalida(listaDetalleSalida);
             return ResponseEntity.ok(guardados);
         } catch (Exception e) {
 
@@ -44,7 +43,7 @@ public class SalidaController {
 
     @PutMapping("/{detalleSalidaId}")
     public ResponseEntity<Map<String, Boolean>> actualizarDetalle(@PathVariable Long detalleSalidaId,
-                                                                  @RequestBody Detalle_Salida detalleEntrada) {
+                                                                  @RequestBody DetalleSalida detalleEntrada) {
         Map<String, Boolean> result = detalleSalidaService.actualizarDetalleSalida(detalleSalidaId, detalleEntrada);
 
         if (Boolean.TRUE.equals(result.get("success"))) {
@@ -56,12 +55,12 @@ public class SalidaController {
 
 
     @GetMapping("/{id}")
-    public Detalle_Salida obtenerPorId(@PathVariable Long id) {
+    public DetalleSalida obtenerPorId(@PathVariable Long id) {
         return detalleSalidaService.obtenerPorId(id);
     }
 
     @GetMapping
-    public List<Detalle_Salida> obtenerTodas() {
+    public List<DetalleSalida> obtenerTodas() {
         return detalleSalidaService.obtenerTodas();
     }
 

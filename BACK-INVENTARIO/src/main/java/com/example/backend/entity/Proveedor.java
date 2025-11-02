@@ -16,24 +16,24 @@ public class Proveedor {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "pro_codigo")
+	@Column(name = "prov_codigo")
 	private Long proveedorId;
 
-	@Column(name = "pro_nombre")
+	@Column(name = "prov_nombre")
 	private String nombre;
 
-	@Column(name = "pro_ruc")
+	@Column(name = "prov_ruc")
 	private String ruc;
 
-	@Column(name = "pro_direccion")
+	@Column(name = "prov_direccion")
 	private String direccion;
 
-	@Column(name = "pro_telefono")
+	@Column(name = "prov_telefono")
 	private String telefono;
 
-	@Column(name = "pro_email")
+	@Column(name = "prov_email")
 	private String email;
 
-	@Column(name = "pro_estado")
+	@Column(name = "prov_estado")
 	private boolean estado;
 }

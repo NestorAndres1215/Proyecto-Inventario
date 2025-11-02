@@ -23,7 +23,7 @@ public class Reclamos {
 	private String asunto;
 
 	@ManyToOne
-	@JoinColumn(name = "re_usuario", referencedColumnName = "lg_codigo")
+	@JoinColumn(name = "re_usuario", referencedColumnName = "us_codigo")
 	private Usuario usuario;
 
 	@Column(name = "re_estado") // cambiado a snake_case

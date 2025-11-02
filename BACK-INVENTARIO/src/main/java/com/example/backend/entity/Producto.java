@@ -39,7 +39,8 @@ public class Producto {
 	private boolean estado;
 
 	@ManyToOne
-	@JoinColumn(name = "pro_proveedor", referencedColumnName = "pro_codigo")
+	@JoinColumn(name = "pro_proveedor", referencedColumnName = "prov_codigo")
 	private Proveedor proveedor;
+
 }
 

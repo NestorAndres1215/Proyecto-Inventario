@@ -31,7 +31,7 @@ public class Entradas {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ent_id")
+	@Column(name = "ent_codigo")
 	private Long entradaId;
 
 	@JsonIgnore

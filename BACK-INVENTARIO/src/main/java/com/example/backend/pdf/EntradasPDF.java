@@ -97,7 +97,7 @@ public class EntradasPDF {
 		Font cellFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
 		PdfPCell cell;
 
-		for (Detalle_Entrada producto : productosActivos) {
+		for (DetalleEntrada producto : productosActivos) {
 			cell = new PdfPCell(new Phrase(String.valueOf(producto.getDetalleEntradaId()), cellFont));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell(cell);

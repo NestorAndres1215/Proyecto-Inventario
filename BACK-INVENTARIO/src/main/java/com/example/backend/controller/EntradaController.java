@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.entity.DetalleEntrada;
 import com.example.backend.service.DetalleEntradaService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-import com.example.backend.entity.Detalle_Entrada;
+
 
 @RestController
 @RequestMapping("/entradas")
@@ -31,26 +31,26 @@ public class EntradaController {
 
 
     @PostMapping("/")
-    public ResponseEntity<List<Detalle_Entrada>> crearEntrada(@RequestBody List<Detalle_Entrada> listaDetalleEntrada) {
-        List<Detalle_Entrada> guardados = detalleEntradaService.crearDetalleEntrada(listaDetalleEntrada);
+    public ResponseEntity<List<DetalleEntrada>> crearEntrada(@RequestBody List<DetalleEntrada> listaDetalleEntrada) {
+        List<DetalleEntrada> guardados = detalleEntradaService.crearDetalleEntrada(listaDetalleEntrada);
         return ResponseEntity.ok(guardados);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Detalle_Entrada> obtenerPorId(@PathVariable Long id) {
-        Detalle_Entrada detalle = detalleEntradaService.obtenerPorId(id);
+    public ResponseEntity<DetalleEntrada> obtenerPorId(@PathVariable Long id) {
+        DetalleEntrada detalle = detalleEntradaService.obtenerPorId(id);
         return ResponseEntity.ok(detalle);
     }
 
     @GetMapping
-    public ResponseEntity<List<Detalle_Entrada>> obtenerTodos() {
+    public ResponseEntity<List<DetalleEntrada>> obtenerTodos() {
         return ResponseEntity.ok(detalleEntradaService.obtenerTodos());
     }
 
     @PutMapping("/{detalleEntradaId}")
-    public ResponseEntity<Detalle_Entrada> actualizar(@PathVariable Long detalleEntradaId,
-                                                      @RequestBody Detalle_Entrada detalleEntrada) {
-        Detalle_Entrada actualizado = detalleEntradaService.actualizarDetalleEntrada(detalleEntradaId, detalleEntrada);
+    public ResponseEntity<DetalleEntrada> actualizar(@PathVariable Long detalleEntradaId,
+                                                      @RequestBody DetalleEntrada detalleEntrada) {
+        DetalleEntrada actualizado = detalleEntradaService.actualizarDetalleEntrada(detalleEntradaId, detalleEntrada);
         return ResponseEntity.ok(actualizado);
     }
 }

@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 
 import com.example.backend.dto.UsuarioRequestDTO;
+import com.example.backend.entity.Rol;
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -80,5 +81,55 @@ public class UsuarioController {
     public ResponseEntity<Usuario> activarUsuario(@PathVariable("id") Long id) {
         Usuario usuarioActualizado = usuarioService.activarUsuario(id);
         return ResponseEntity.ok(usuarioActualizado);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
+        Usuario usuario = usuarioService.buscarPorId(id);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Usuario> buscarPorUsername(@PathVariable String username) {
+        Usuario usuario = usuarioService.buscarPorUsername(username);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<Usuario> buscarPorDni(@PathVariable String dni) {
+        Usuario usuario = usuarioService.buscarPorDni(dni);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<List<Usuario>> buscarPorNombre(@PathVariable String nombre) {
+        List<Usuario> usuarios = usuarioService.buscarPorNombre(nombre);
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("/activos")
+    public ResponseEntity<List<Usuario>> usuariosActivos() {
+        List<Usuario> usuarios = usuarioService.usuariosActivos();
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("/inactivos")
+    public ResponseEntity<List<Usuario>> usuariosInactivos() {
+        List<Usuario> usuarios = usuarioService.usuariosInactivos();
+        return ResponseEntity.ok(usuarios);
+    }
+    @GetMapping("/apellido/{apellido}")
+    public ResponseEntity<List<Usuario>> buscarPorApellido(@PathVariable String apellido) {
+        List<Usuario> usuarios = usuarioService.buscarPorApellido(apellido);
+        return ResponseEntity.ok(usuarios);
+    }
+    @GetMapping("/rol/{rolNombre}/estado/{estado}")
+    public ResponseEntity<List<Usuario>> buscarPorRolYEstado(
+            @PathVariable String rolNombre,
+            @PathVariable boolean estado) {
+
+        Rol rol = usuarioService.getRolByNombre(rolNombre);
+        List<Usuario> usuarios = usuarioService.buscarPorRolYEstado(rol, estado);
+        return ResponseEntity.ok(usuarios);
     }
 }

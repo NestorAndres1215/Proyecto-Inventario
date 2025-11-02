@@ -36,11 +36,11 @@ public class DetalleSalida {
 	private String descripcion;
 
 	@ManyToOne
-	@JoinColumn(name = "ds_usuario", referencedColumnName = "lg_codigo", nullable = false)
+	@JoinColumn(name = "ds_usuario", referencedColumnName = "us_codigo", nullable = false)
 	private Usuario usuario;
 
 	@ManyToOne
-	@JoinColumn(name = "ds_producto", referencedColumnName = "pro_producto", nullable = false)
+	@JoinColumn(name = "ds_producto", referencedColumnName = "pro_codigo", nullable = false)
 	private Producto producto;
 
 	@ManyToOne

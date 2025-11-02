@@ -95,7 +95,7 @@ public class SalidasPDF {
 		Font cellFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
 		PdfPCell cell;
 
-		for (Detalle_Salida producto : productosActivos) {
+		for (DetalleSalida producto : productosActivos) {
 			cell = new PdfPCell(new Phrase(String.valueOf(producto.getDetalleSalidaId()), cellFont));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell(cell);

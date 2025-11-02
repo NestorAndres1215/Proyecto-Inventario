@@ -4,6 +4,7 @@ import com.example.backend.dto.LoginRequestDTO;
 
 import com.example.backend.security.UserDetailsServiceImpl;
 import com.example.backend.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.security.Principal;
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autheticacion")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;

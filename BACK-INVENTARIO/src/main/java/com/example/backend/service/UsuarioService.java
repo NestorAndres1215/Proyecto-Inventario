@@ -226,5 +226,18 @@ public class UsuarioService {
                         String.format("Rol '%s' no encontrado", nombre)
                 ));
     }
+    public Optional<Usuario> buscarPorTelefono(String telefono) {
+        if (telefono == null || telefono.trim().isEmpty()) {
+            throw new IllegalArgumentException("El teléfono no puede estar vacío.");
+        }
+        return usuarioRepository.findByTelefono(telefono.trim());
+    }
 
+    // ------------------ BUSCAR POR EMAIL ------------------
+    public Optional<Usuario> buscarPorEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío.");
+        }
+        return usuarioRepository.findByEmail(email.trim());
+    }
 }

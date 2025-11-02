@@ -5,6 +5,7 @@ import com.example.backend.dto.UsuarioRequestDTO;
 import com.example.backend.entity.Rol;
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
 @RequiredArgsConstructor
+@Tag(name = "Usuario")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -26,6 +28,21 @@ public class UsuarioController {
     @PostMapping("/guardar-normal")
     public ResponseEntity<?> guardarNormal(@RequestBody UsuarioRequestDTO admin) {
         return ResponseEntity.ok(usuarioService.registrarUsuario(admin));
+    }
+    // ------------------ BUSCAR POR TELEFONO ------------------
+    @GetMapping("/telefono/{telefono}")
+    public ResponseEntity<Usuario> buscarPorTelefono(@PathVariable String telefono) {
+        return usuarioService.buscarPorTelefono(telefono)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ------------------ BUSCAR POR EMAIL ------------------
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Usuario> buscarPorEmail(@PathVariable String email) {
+        return usuarioService.buscarPorEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // registrar usuarios admin

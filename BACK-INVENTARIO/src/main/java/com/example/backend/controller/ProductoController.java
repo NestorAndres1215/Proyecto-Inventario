@@ -82,7 +82,6 @@ public class ProductoController {
     }
 
 
-
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizarProducto(
             @PathVariable Long id,
@@ -123,4 +122,36 @@ public class ProductoController {
 
     }
 
+    // ------------------ STOCK ------------------
+    @GetMapping("/mayor-stock")
+    public ResponseEntity<Producto> productoConMayorStock() {
+        Producto producto = productoService.productoConMayorStock();
+        return producto != null ? ResponseEntity.ok(producto) : ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/menor-stock")
+    public ResponseEntity<Producto> productoConMenorStock() {
+        Producto producto = productoService.productoConMenorStock();
+        return producto != null ? ResponseEntity.ok(producto) : ResponseEntity.noContent().build();
+    }
+
+    // ------------------ POR PROVEEDOR ------------------
+    @GetMapping("/proveedor/{proveedorId}")
+    public ResponseEntity<List<Producto>> listarPorProveedor(@PathVariable Long proveedorId) {
+        List<Producto> productos = productoService.listarProductosPorProveedor(proveedorId);
+        return ResponseEntity.ok(productos);
+    }
+
+    // ------------------ TOP 10 MÁS BARATOS ------------------
+    @GetMapping("/top10-mas-baratos")
+    public ResponseEntity<List<Producto>> top10ProductosMasBaratos() {
+        List<Producto> productos = productoService.top10ProductosMasBaratos();
+        return ResponseEntity.ok(productos);
+    }
+
+    @GetMapping("/top10-mas-baratos-activos")
+    public ResponseEntity<List<Producto>> top10ProductosMasBaratosActivos() {
+        List<Producto> productos = productoService.top10ProductosMasBaratosActivos();
+        return ResponseEntity.ok(productos);
+    }
 }

@@ -31,7 +31,9 @@ public class JwtSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeRequests(auth -> auth
-                        .antMatchers("/auth/generate-token", "/usuarios/guardar-admin", "/usuarios/guardar-normal")
+                        .antMatchers("/auth/generate-token", "/usuarios/guardar-admin", "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui/index.html", "/usuarios/guardar-normal")
                         .permitAll()
                         .antMatchers(HttpMethod.OPTIONS).permitAll()
                         .anyRequest().authenticated())

@@ -9,6 +9,7 @@ import com.example.backend.service.UsuarioService;
 import com.example.backend.security.JwtUtils;
 
 import com.example.backend.security.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,25 +22,15 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-
     private final AuthenticationManager authenticationManager;
-
-
     private final UsuarioService usuarioService;
-
-
     private final JwtUtils jwtUtils;
-
     private final UserDetailsServiceImpl userDetailsService;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UsuarioService usuarioService, JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService) {
-        this.authenticationManager = authenticationManager;
-        this.usuarioService = usuarioService;
-        this.jwtUtils = jwtUtils;
-        this.userDetailsService = userDetailsService;
-    }
+
 
     @Override
     public TokenResponseDTO login(LoginRequestDTO loginRequestDTO) {

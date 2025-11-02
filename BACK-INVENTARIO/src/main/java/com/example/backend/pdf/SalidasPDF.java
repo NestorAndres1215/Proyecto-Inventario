@@ -3,10 +3,10 @@ package com.example.backend.pdf;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import com.example.backend.entity.DetalleSalida;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.backend.entity.Detalle_Salida;
 
 import com.example.backend.repository.Detalle_SalidaRepository;
 
@@ -22,17 +22,15 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
+@RequiredArgsConstructor
 public class SalidasPDF {
 
 
 	private  final Detalle_SalidaRepository salidaRepository;
 
-    public SalidasPDF(Detalle_SalidaRepository salidaRepository) {
-        this.salidaRepository = salidaRepository;
-    }
 
     public byte[] generarInformePdf() throws DocumentException {
-		List<Detalle_Salida> productosActivos = salidaRepository.findAll();
+		List<DetalleSalida> productosActivos = salidaRepository.findAll();
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		Document document = new Document();

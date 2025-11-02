@@ -8,6 +8,7 @@ import com.example.backend.entity.Usuario;
 import com.example.backend.repository.UsuarioRepository;
 import com.example.backend.service.UsuarioService;
 import com.example.backend.utils.ValidacionUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -28,11 +30,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final  RolRepository rolRepository;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RolRepository rolRepository) {
-        this.usuarioRepository = usuarioRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.rolRepository = rolRepository;
-    }
+
 
     @Override
     public Usuario registrarUsuario(UsuarioRequestDTO usuarioDTO) {

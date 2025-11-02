@@ -1,69 +1,83 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import baserUrl from '../models/helper';
 import { Observable } from 'rxjs';
+import baserUrl from 'src/app/core/models/helper';
+import { API_ENDPOINTS } from 'src/app/core/constants/api-endpoints';
+import { ProveedorValidator } from 'src/app/core/validator/proveedor.validator';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProveedorService {
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  //listar proveedor activadas
-  public listarProveedorActivadas(): Observable<any[]> {
-    return this.http.get<any[]>(`${baserUrl}/proveedor/activadas`);
+  /** ========================
+   *  LISTAR PROVEEDORES
+   * ======================== */
+  listarProveedoresActivos(): Observable<any[]> {
+    return this.http.get<any[]>(`${baserUrl}${API_ENDPOINTS.proveedores.activados}`);
   }
 
-  // listar proveedor desactivadas
-  public listarProveedorDesactivadas(): Observable<any[]> {
-    return this.http.get<any[]>(`${baserUrl}/proveedor/desactivadas`);
+  listarProveedoresDesactivados(): Observable<any[]> {
+    return this.http.get<any[]>(`${baserUrl}${API_ENDPOINTS.proveedores.desactivados}`);
   }
 
+  /** ========================
+   *  CREAR NUEVO PROVEEDOR
+   * ======================== */
+  agregarProveedor(proveedor: any): Observable<any> {
+    if (!ProveedorValidator.esProveedorValido(proveedor)) {
+      throw new Error('Datos de proveedor inválidos');
+    }
 
+    const formData = this.crearFormData(proveedor);
+    const headers = new HttpHeaders({ enctype: 'multipart/form-data' });
 
-//crear proveedor
-  public agregarProveedor(nombre: string, Ruc: string, Direccion: string, Telefono: string, Email: string): Observable<any> {
-    const formData = new FormData();
-    formData.append('nombre', nombre);
-    formData.append('Ruc', Ruc);
-    formData.append('Direccion', Direccion);
-    formData.append('Telefono', Telefono);
-    formData.append('Email', Email);
-    const headers = new HttpHeaders();
-    headers.append('Content-Type', 'multipart/form-data');
-
-    return this.http.post<any>(baserUrl + '/proveedor/', formData, { headers: headers });
+    return this.http.post<any>(`${baserUrl}${API_ENDPOINTS.proveedores.base}/`, formData, { headers });
   }
-  //actualizar proveedor
-  public actualizarProveedor(proveedorId: number, proveedor: any): Observable<any> {
+
+  /** ========================
+   *  ACTUALIZAR PROVEEDOR
+   * ======================== */
+  actualizarProveedor(proveedorId: number, proveedor: any): Observable<any> {
+    if (!ProveedorValidator.esProveedorValido(proveedor)) {
+      throw new Error('Datos de proveedor inválidos');
+    }
+
+    const formData = this.crearFormData(proveedor);
+    const headers = new HttpHeaders({ enctype: 'multipart/form-data' });
+
+    return this.http.put(`${baserUrl}${API_ENDPOINTS.proveedores.base}/${proveedorId}`, formData, { headers });
+  }
+
+  /** ========================
+   *  OBTENER PROVEEDOR POR ID
+   * ======================== */
+  obtenerProveedorPorId(proveedorId: number): Observable<any> {
+    return this.http.get(`${baserUrl}${API_ENDPOINTS.proveedores.base}/${proveedorId}`);
+  }
+
+  /** ========================
+   *  ACTIVAR / DESACTIVAR
+   * ======================== */
+  desactivarProveedor(proveedorId: number): Observable<any> {
+    return this.http.post(`${baserUrl}${API_ENDPOINTS.proveedores.desactivar}/${proveedorId}`, {});
+  }
+
+  activarProveedor(proveedorId: number): Observable<any> {
+    return this.http.post(`${baserUrl}${API_ENDPOINTS.proveedores.activar}/${proveedorId}`, {});
+  }
+
+  /** ========================
+   *  MÉTODO PRIVADO UTILITARIO
+   * ======================== */
+  private crearFormData(proveedor: any): FormData {
     const formData = new FormData();
     formData.append('nombre', proveedor.nombre);
     formData.append('ruc', proveedor.ruc);
     formData.append('direccion', proveedor.direccion);
     formData.append('telefono', proveedor.telefono);
     formData.append('email', proveedor.email);
-
-    const headers = new HttpHeaders({
-      'enctype': 'multipart/form-data'
-    });
-    return this.http.put(`${baserUrl}/proveedor/${proveedorId}`, formData, { headers });
+    return formData;
   }
-
-
-   //listar por id
-   public obtenerProveedorPorId(proveedorId: any): Observable<any> {
-    return this.http.get(`${baserUrl}/proveedor/${proveedorId}`);
-  }
-
-
-    //desactivar proveedor
-    public desactivarProveedor(proveedorId: any): Observable<any> {
-      return this.http.post(`${baserUrl}/proveedor/desactivar/${proveedorId}`, {});
-    }
-    //activar proveedor
-    public activarProveedor(proveedorId: any) {
-      return this.http.post(`${baserUrl}/proveedor/activar/${proveedorId}`, {})
-    }
 }
-
-

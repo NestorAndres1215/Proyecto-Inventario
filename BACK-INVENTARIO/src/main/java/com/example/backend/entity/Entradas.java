@@ -12,42 +12,29 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "entradas")
 public class Entradas {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "ent_id")
 	private Long entradaId;
+
 	@JsonIgnore
+	@Column(name = "ent_fecha_entrada")
 	private Date fechaEntrada;
-
-
-
-	public Entradas() {
-		super();
-	}
-
-	public Entradas(Date fechaEntrada) {
-		super();
-		this.fechaEntrada = fechaEntrada;
-
-	}
-
-	public Long getEntradaId() {
-		return entradaId;
-	}
-
-	public void setEntradaId(Long entradaId) {
-		this.entradaId = entradaId;
-	}
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
-	public Date getFechaEntrada() {
-		return fechaEntrada;
-	}
-
-	public void setFechaEntrada(Date fechaEntrada) {
-		this.fechaEntrada = fechaEntrada;
-	}
-
-
 }

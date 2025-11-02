@@ -1,6 +1,7 @@
 package com.example.backend.security;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,17 +17,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class JwtSecurityConfig {
 
     private final JwtUnauthorizedEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public JwtSecurityConfig(JwtUnauthorizedEntryPoint  unauthorizedHandler,
-                             JwtAuthenticationFilter jwtAuthenticationFilter,
-                             UserDetailsServiceImpl userDetailsServiceImpl) {
-        this.unauthorizedHandler = unauthorizedHandler;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

@@ -3,6 +3,7 @@ package com.example.backend.pdf;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +21,11 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
+@RequiredArgsConstructor
 public class ProveedorPDF {
 
 
 	private final ProveedorRepository proveedorRepository;
-
-    public ProveedorPDF(ProveedorRepository proveedorRepository) {
-        this.proveedorRepository = proveedorRepository;
-    }
 
 
     public byte[] generarInformePdf() throws DocumentException {

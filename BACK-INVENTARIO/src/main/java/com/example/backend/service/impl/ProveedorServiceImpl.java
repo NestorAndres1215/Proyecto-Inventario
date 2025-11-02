@@ -3,20 +3,18 @@ package com.example.backend.service.impl;
 import com.example.backend.entity.Proveedor;
 import com.example.backend.repository.ProveedorRepository;
 import com.example.backend.service.ProveedorService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProveedorServiceImpl implements ProveedorService {
 
     private  final ProveedorRepository proveedorRepository;
-
-    public ProveedorServiceImpl(ProveedorRepository proveedorRepository) {
-        this.proveedorRepository = proveedorRepository;
-    }
 
 
     @Override

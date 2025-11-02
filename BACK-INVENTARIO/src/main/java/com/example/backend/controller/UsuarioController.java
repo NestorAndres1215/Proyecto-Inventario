@@ -4,10 +4,8 @@ package com.example.backend.controller;
 import com.example.backend.dto.UsuarioRequestDTO;
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,13 +14,12 @@ import java.util.List;
 @RequestMapping("/usuarios")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
+
 
     // registrar usuarios normales
     @PostMapping("/guardar-normal")

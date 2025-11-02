@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.service.DetalleEntradaService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,13 +23,12 @@ import com.example.backend.entity.Detalle_Entrada;
 @RequestMapping("/entradas")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class EntradaController {
 
     private final DetalleEntradaService detalleEntradaService;
 
-    public EntradaController(DetalleEntradaService detalleEntradaService) {
-        this.detalleEntradaService = detalleEntradaService;
-    }
+
 
     @PostMapping("/")
     public ResponseEntity<List<Detalle_Entrada>> crearEntrada(@RequestBody List<Detalle_Entrada> listaDetalleEntrada) {

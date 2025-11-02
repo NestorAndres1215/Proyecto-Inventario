@@ -4,6 +4,7 @@ import com.example.backend.dto.LoginRequestDTO;
 
 import com.example.backend.service.AuthService;
 import com.example.backend.security.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,20 +18,14 @@ import java.security.Principal;
 @Controller
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthService authService;
 
-    // Constructor
-    public AuthenticationController(AuthenticationManager authenticationManager,
-                          UserDetailsServiceImpl userDetailsService,
-                          AuthService authService) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.authService = authService;
-    }
+
 
     @PostMapping("/generate-token")
     public ResponseEntity<?> generarToken(@RequestBody LoginRequestDTO jwtRequest) throws Exception {

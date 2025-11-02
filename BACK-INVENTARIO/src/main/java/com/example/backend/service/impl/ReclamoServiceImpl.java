@@ -3,6 +3,7 @@ package com.example.backend.service.impl;
 import com.example.backend.entity.Reclamos;
 import com.example.backend.repository.ReclamoRepository;
 import com.example.backend.service.ReclamoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,16 +11,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
+@RequiredArgsConstructor
 public class ReclamoServiceImpl implements ReclamoService {
 
     private final JavaMailSender javaMailSender;
     private final ReclamoRepository reclamoRepository;
 
-    @Autowired
-    public ReclamoServiceImpl(JavaMailSender javaMailSender, ReclamoRepository reclamoRepository) {
-        this.javaMailSender = javaMailSender;
-        this.reclamoRepository = reclamoRepository;
-    }
+
 
     @Override
     public List<Reclamos> obtenerTodosLosReclamos() {

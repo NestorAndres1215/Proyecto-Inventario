@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.example.backend.service.ProductoService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,14 +26,11 @@ import com.example.backend.entity.Producto;
 @RequestMapping("/producto")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class ProductoController {
 
 
     private final ProductoService productoService;
-
-    public ProductoController(ProductoService productoService) {
-        this.productoService = productoService;
-    }
 
     @GetMapping
     public List<Producto> obtenerTodos() {

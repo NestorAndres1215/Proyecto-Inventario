@@ -2,7 +2,7 @@
 import { DashboardComponent } from './pages/admin/home-admin/home-admin.component';
 import { LoginComponent } from './pages/configuracion/login/login.component';
 import { HomeComponent } from './pages/configuracion/home/home.component';
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PrincipalComponent } from './pages/admin/principal/principal.component';
 import { PerfilComponent } from './pages/admin/perfil/perfil.component';

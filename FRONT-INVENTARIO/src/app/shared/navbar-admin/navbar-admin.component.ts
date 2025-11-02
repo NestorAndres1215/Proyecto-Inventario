@@ -21,7 +21,7 @@ export class NavbarAdminComponent implements OnInit {
   ngOnInit(): void {
     this.isLoggedIn = this.login.isLoggedIn();
     this.user = this.login.getUser();
-    this.login.loginStatusSubjec.asObservable().subscribe(
+    this.login.loginStatusSubject.asObservable().subscribe(
       data => {
         this.isLoggedIn = this.login.isLoggedIn();
         this.user = this.login.getUser();

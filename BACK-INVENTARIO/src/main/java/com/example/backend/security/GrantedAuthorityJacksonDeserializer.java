@@ -10,12 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.IOException;
 
-/**
- * Custom deserializer para convertir JSON en objetos {@link GrantedAuthority}.
- *
- * Ejemplo de JSON:
- * { "authority": "ROLE_ADMIN" }
- */
+
 public class GrantedAuthorityJacksonDeserializer extends StdDeserializer<GrantedAuthority> {
 
     private static final long serialVersionUID = 1L;

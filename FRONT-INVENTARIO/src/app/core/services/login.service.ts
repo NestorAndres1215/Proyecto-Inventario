@@ -1,70 +1,87 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import baserUrl from '../models/helper';
+import { API_ENDPOINTS } from 'src/app/core/constants/api-endpoints';
+import { AuthValidator } from 'src/app/core/validator/auth.validator';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
+  private readonly TOKEN_KEY = 'token';
+  private readonly USER_KEY = 'user';
+  public loginStatusSubject = new Subject<boolean>();
 
-  public loginStatusSubjec = new Subject<boolean>();
+  constructor(private http: HttpClient) {}
 
-  constructor(private http:HttpClient) { }
-
-  //generamos el token
-  public generateToken(loginData:any){
-    return this.http.post(`${baserUrl}/auth/generate-token`,loginData);
-  }
-
-  public getCurrentUser(){
-    return this.http.get(`${baserUrl}/auth/actual-usuario`);
-  }
-
-  //iniciamos sesión y establecemos el token en el localStorage
-  public loginUser(token:any){
-    localStorage.setItem('token',token);
-    return true;
-  }
-
-  public isLoggedIn(){
-    let tokenStr = localStorage.getItem('token');
-    if(tokenStr == undefined || tokenStr == '' || tokenStr == null){
-      return false;
-    }else{
-      return true;
+  /** ========================
+   *  AUTENTICACIÓN
+   * ======================== */
+  generateToken(loginData: any): Observable<any> {
+    if (!AuthValidator.isLoginDataValid(loginData)) {
+      return throwError(() => new Error('Datos de inicio de sesión inválidos.'));
     }
+
+    return this.http
+      .post(`${baserUrl}${API_ENDPOINTS.auth.generateToken}`, loginData)
+      .pipe(catchError(this.handleError));
   }
 
-  //cerranis sesion y eliminamos el token del localStorage
-  public logout(){
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  getCurrentUser(): Observable<any> {
+    return this.http
+      .get(`${baserUrl}${API_ENDPOINTS.auth.currentUser}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /** ========================
+   *  SESIÓN LOCAL
+   * ======================== */
+  loginUser(token: string): boolean {
+    localStorage.setItem(this.TOKEN_KEY, token);
     return true;
   }
 
-  //obtenemos el token
-  public getToken(){
-    return localStorage.getItem('token');
+  isLoggedIn(): boolean {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    return !!token && token.trim() !== '';
   }
 
-  public setUser(user:any){
-    localStorage.setItem('user', JSON.stringify(user));
+  logout(): boolean {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    return true;
   }
 
-  public getUser(){
-    let userStr = localStorage.getItem('user');
-    if(userStr != null){
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  setUser(user: any): void {
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  }
+
+  getUser(): any | null {
+    const userStr = localStorage.getItem(this.USER_KEY);
+    if (userStr) {
       return JSON.parse(userStr);
-    }else{
+    } else {
       this.logout();
       return null;
     }
   }
 
-  public getUserRole(){
-    let user = this.getUser();
-    return user.authorities[0].authority;
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user?.authorities?.[0]?.authority || null;
   }
 
+  /** ========================
+   *  MANEJO DE ERRORES
+   * ======================== */
+  private handleError(error: any) {
+    console.error('Error en el servicio de Login:', error);
+    return throwError(() => new Error('Error en la autenticación.'));
+  }
 }

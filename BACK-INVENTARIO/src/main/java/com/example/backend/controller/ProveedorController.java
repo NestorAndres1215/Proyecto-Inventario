@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.backend.service.ProveedorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,13 +28,12 @@ import com.example.backend.repository.ProveedorRepository;
 
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class ProveedorController {
 
-    @Autowired
-    private ProveedorRepository proveedorRepository;
 
-    @Autowired
-    private ProveedorService proveedorService;
+    private final ProveedorRepository proveedorRepository;
+    private final ProveedorService proveedorService;
 
     // Metodo Listar
     @GetMapping

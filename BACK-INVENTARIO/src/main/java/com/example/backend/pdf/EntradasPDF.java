@@ -3,10 +3,12 @@ package com.example.backend.pdf;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import com.example.backend.entity.DetalleEntrada;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.entity.Detalle_Entrada;
+
 
 import com.example.backend.repository.Detalle_EntradaRepository;
 import com.itextpdf.text.BaseColor;
@@ -21,18 +23,16 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
+@RequiredArgsConstructor
 public class EntradasPDF {
 	
 
 	private final Detalle_EntradaRepository entradaRepository;
 
-    public EntradasPDF(Detalle_EntradaRepository entradaRepository) {
-        this.entradaRepository = entradaRepository;
-    }
 
 
     public byte[] generarInformePdf() throws DocumentException {
-		List<Detalle_Entrada> productosActivos = entradaRepository.findAll();
+		List<DetalleEntrada> productosActivos = entradaRepository.findAll();
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		Document document = new Document();

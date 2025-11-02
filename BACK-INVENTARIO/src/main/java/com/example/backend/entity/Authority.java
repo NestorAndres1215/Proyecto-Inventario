@@ -2,17 +2,14 @@ package com.example.backend.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+
+@Getter
+@AllArgsConstructor
 public class Authority implements GrantedAuthority {
 
-    private String authority;
-
-    public Authority(String authority) {
-        this.authority = authority;
-    }
-
-    @Override
-    public String getAuthority() {
-        return this.authority;
-    }
+    private final String authority;
 
 }

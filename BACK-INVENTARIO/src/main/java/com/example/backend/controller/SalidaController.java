@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.backend.service.DetalleSalidaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +23,12 @@ import com.example.backend.entity.Detalle_Salida;
 @RequestMapping("/salidas")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class SalidaController {
 
     private final DetalleSalidaService detalleSalidaService;
 
-    public SalidaController(DetalleSalidaService detalleSalidaService) {
-        this.detalleSalidaService = detalleSalidaService;
-    }
+
 
     @PostMapping("/")
     public ResponseEntity<List<Detalle_Salida>> crearDetalleSalida(@RequestBody List<Detalle_Salida> listaDetalleSalida) {

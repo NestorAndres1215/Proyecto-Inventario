@@ -1,9 +1,10 @@
 package com.example.backend.repository;
 
+import com.example.backend.entity.DetalleSalida;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.backend.entity.Detalle_Salida;
 
-public interface Detalle_SalidaRepository extends JpaRepository<Detalle_Salida, Long> {
+
+public interface Detalle_SalidaRepository extends JpaRepository<DetalleSalida, Long> {
 
 }

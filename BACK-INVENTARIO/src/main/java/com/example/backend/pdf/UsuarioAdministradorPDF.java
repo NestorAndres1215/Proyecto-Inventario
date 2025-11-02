@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +22,13 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioAdministradorPDF {
 
 
 	private final UsuarioService usuarioService;
 
-    public UsuarioAdministradorPDF(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
+
 
     public byte[] generarInformePdf() throws DocumentException {
 		List<Usuario> productosActivos = usuarioService.listarUsuarioAdminActivado();

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.backend.service.ReclamoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,14 +26,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
         RequestMethod.DELETE}, allowedHeaders = "*")
+@RequiredArgsConstructor
 public class ReclamoController {
 
 
     private final ReclamoService reclamoService;
 
-    public ReclamoController(ReclamoService reclamoService) {
-        this.reclamoService = reclamoService;
-    }
+
 
     @GetMapping
     public List<Reclamos> obtenerProveedor() {

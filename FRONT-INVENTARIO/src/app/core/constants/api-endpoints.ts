@@ -15,7 +15,8 @@ export const API_ENDPOINTS = {
   salidas: {
     base: '/salidas'
   },
-    reportes: {
+
+  reportes: {
     salidas: '/pdf/generar-salidas',
     entradas: '/pdf/generar-entradas',
     proveedores: '/pdf/generar-proveedor',
@@ -23,10 +24,33 @@ export const API_ENDPOINTS = {
     usuariosAdmin: '/pdf/generar-administrador',
     usuariosOperador: '/pdf/generar-operador'
   },
-   reclamos: {
+
+  reclamos: {
     base: '/reclamo',
     activados: '/reclamo/activadas',
     desactivados: '/reclamo/desactivadas',
     enviarDisculpas: '/reclamo'
+  },
+
+  proveedores: {
+    base: '/proveedor',
+    activados: '/proveedor/activadas',
+    desactivados: '/proveedor/desactivadas',
+    activar: '/proveedor/activar',
+    desactivar: '/proveedor/desactivar'
+  },
+  productos: {
+    base: '/producto',
+    activados: '/producto/activadas',
+    desactivados: '/producto/desactivadas',
+    activar: '/producto/activar',
+    desactivar: '/producto/desactivar'
+  },
+  auth: {
+    generateToken: '/auth/generate-token',
+    currentUser: '/auth/actual-usuario'
+  },
+  entradas: {
+    base: '/entradas'
   }
 };

@@ -5,20 +5,19 @@ import com.example.backend.entity.Proveedor;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.ProveedorRepository;
 import com.example.backend.service.ProductoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductoServiceImpl implements ProductoService {
     private final ProductoRepository productoRepository;
     private final ProveedorRepository proveedorRepository;
 
-    public ProductoServiceImpl(ProductoRepository productoRepository, ProveedorRepository proveedorRepository) {
-        this.productoRepository = productoRepository;
-        this.proveedorRepository = proveedorRepository;
-    }
+
 
     @Override
     public List<Producto> obtenerTodosLosProductos() {

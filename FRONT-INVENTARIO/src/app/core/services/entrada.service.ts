@@ -1,31 +1,67 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import baserUrl from 'src/app/core/models/helper';
-import { Observable, catchError, throwError } from 'rxjs';
+import { API_ENDPOINTS } from 'src/app/core/constants/api-endpoints';
+import { EntradaValidator } from 'src/app/core/validator/entrada.validator';
+
 @Injectable({
   providedIn: 'root'
 })
 export class EntradaService {
+  constructor(private http: HttpClient) {}
 
-  constructor(
-    private http: HttpClient
-  ) { }
-  public listarEntradas(): Observable<any[]> {
-    return this.http.get<any[]>(`${baserUrl}/entradas/`);
-  }
-  public  crearEntradaConDetalles(listaDetalleEntrada: any[]): Observable<any> {
-    return this.http.post(`${baserUrl}/entradas/`, listaDetalleEntrada);
+  /** ========================
+   *  LISTAR ENTRADAS
+   * ======================== */
+  listarEntradas(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${baserUrl}${API_ENDPOINTS.entradas.base}`)
+      .pipe(catchError(this.handleError));
   }
 
- 
+  /** ========================
+   *  CREAR ENTRADA CON DETALLES
+   * ======================== */
+  crearEntradaConDetalles(listaDetalleEntrada: any[]): Observable<any> {
+    if (!EntradaValidator.esListaValida(listaDetalleEntrada)) {
+      return throwError(() => new Error('Lista de detalles de entrada inválida.'));
+    }
+
+    return this.http
+      .post(`${baserUrl}${API_ENDPOINTS.entradas.base}`, listaDetalleEntrada)
+      .pipe(catchError(this.handleError));
+  }
+
+  /** ========================
+   *  ACTUALIZAR DETALLE DE ENTRADA
+   * ======================== */
   actualizarDetalleEntrada(detalleEntradaId: number, detalleEntrada: any): Observable<any> {
-    const url = `${baserUrl}/entradas/${detalleEntradaId}`;
-    return this.http.put(url, detalleEntrada);
+    if (!EntradaValidator.esDetalleValido(detalleEntrada)) {
+      return throwError(() => new Error('Datos del detalle de entrada inválidos.'));
+    }
+
+    const url = `${baserUrl}${API_ENDPOINTS.entradas.base}/${detalleEntradaId}`;
+    return this.http
+      .put(url, detalleEntrada)
+      .pipe(catchError(this.handleError));
   }
-  public obtenerEntradaPorId(detalleEntradaId: any): Observable<any> {
-    return this.http.get(`${baserUrl}/entradas/${detalleEntradaId}`);
+
+  /** ========================
+   *  OBTENER ENTRADA POR ID
+   * ======================== */
+  obtenerEntradaPorId(detalleEntradaId: number): Observable<any> {
+    return this.http
+      .get(`${baserUrl}${API_ENDPOINTS.entradas.base}/${detalleEntradaId}`)
+      .pipe(catchError(this.handleError));
   }
 
-
-
+  /** ========================
+   *  MÉTODOS PRIVADOS
+   * ======================== */
+  private handleError(error: any) {
+    console.error('Error en EntradaService:', error);
+    return throwError(() => new Error('Error en la operación de entradas.'));
+  }
 }

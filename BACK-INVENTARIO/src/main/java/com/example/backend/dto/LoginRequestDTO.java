@@ -1,39 +1,17 @@
 package com.example.backend.dto;
 
+import lombok.*;
+
+import javax.validation.constraints.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequestDTO {
 
+    @NotBlank(message = "El login es obligatorio")
     private String login;
+
+    @NotBlank(message = "La contraseña es obligatoria")
     private String password;
-
-    public LoginRequestDTO(String password, String login) {
-        this.password = password;
-        this.login = login;
-    }
-
-    public LoginRequestDTO() {
-    }
-
-    @Override
-    public String toString() {
-        return "LoginRequestDTO{" +
-                "login='" + login + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

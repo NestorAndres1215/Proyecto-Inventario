@@ -7,6 +7,7 @@ import com.example.backend.repository.Detalle_EntradaRepository;
 import com.example.backend.repository.EntradaRepository;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.service.DetalleEntradaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,19 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class DetalleEntradaServiceImpl implements DetalleEntradaService {
 
     private final Detalle_EntradaRepository detalle_EntradaRepository;
     private final EntradaRepository entradaRepository;
     private final ProductoRepository productoRepository;
 
-    public DetalleEntradaServiceImpl(Detalle_EntradaRepository detalle_EntradaRepository,
-                                     EntradaRepository entradaRepository,
-                                     ProductoRepository productoRepository) {
-        this.detalle_EntradaRepository = detalle_EntradaRepository;
-        this.entradaRepository = entradaRepository;
-        this.productoRepository = productoRepository;
-    }
 
     @Override
     public List<Detalle_Entrada> crearDetalleEntrada(List<Detalle_Entrada> listaDetalleEntrada) {

@@ -7,22 +7,19 @@ import com.example.backend.repository.Detalle_SalidaRepository;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.SalidaRepository;
 import com.example.backend.service.DetalleSalidaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class DetalleSalidaServiceImpl implements DetalleSalidaService {
 
     private final Detalle_SalidaRepository detalle_SalidaRepository;
     private  final ProductoRepository   productoRepository;
     private final SalidaRepository salidaRepository;
 
-    public DetalleSalidaServiceImpl(Detalle_SalidaRepository detalle_SalidaRepository, ProductoRepository productoRepository, SalidaRepository salidaRepository) {
-        this.detalle_SalidaRepository = detalle_SalidaRepository;
-        this.productoRepository = productoRepository;
-        this.salidaRepository = salidaRepository;
-    }
 
     @Override
     public Detalle_Salida obtenerPorId(Long id) {

@@ -8,9 +8,11 @@ import { LoginService } from 'src/app/core/services/login.service';
   styleUrls: ['./navbar-usuario.component.css']
 })
 export class NavbarUsuarioComponent implements OnInit {
+  
   isActive(path: string): boolean {
     return this.router.url === path;
   }
+
   isLoggedIn = false;
   user: any = null;
   contenido: any;
@@ -26,9 +28,6 @@ export class NavbarUsuarioComponent implements OnInit {
         this.user = this.login.getUser();
       }
     )
-    ///
-
-
   }
 
   logout() {
@@ -37,9 +36,10 @@ export class NavbarUsuarioComponent implements OnInit {
   }
 
   hayContenidoEnPagina(): boolean {
-    // Verificar si la variable "contenido" tiene algún valor
+
     return !!this.contenido;
   }
+
   status = false;
   addToggle() {
     this.status = !this.status;

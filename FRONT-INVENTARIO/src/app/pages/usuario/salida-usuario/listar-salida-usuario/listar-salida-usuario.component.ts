@@ -21,17 +21,21 @@ export class ListarSalidaUsuarioComponent implements OnInit {
     this.obtenerSalida();
  
   }
-  obtenerSalida() {
-    console.log("llego pppipippi")
-    this.salidaService.listarSalidas().subscribe(
-      (detalleSalida: any) => {
-        this.detalleSalida = detalleSalida;
-      },
-      (error: any) => {
-        console.log("Error al obtener las marcas: ", error);
-      }
-    );
-  }
+obtenerSalida(): void {
+  console.log("Llegó obtenerSalida()");
+
+  this.salidaService.listarSalidas().subscribe({
+    next: (salidas: any) => {
+      this.detalleSalida = salidas;
+    },
+    error: (error: any) => {
+      console.error("Error al obtener las salidas:", error);
+    },
+    complete: () => {
+      console.log("Listado de salidas cargado correctamente.");
+    }
+  });
+}
 
 
   descargarPDF() {

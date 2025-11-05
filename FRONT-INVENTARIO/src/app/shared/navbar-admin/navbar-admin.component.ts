@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Route, Router } from '@angular/router';
-import { LoginService
- } from 'src/app/core/services/login.service';
+import {
+  LoginService
+} from 'src/app/core/services/login.service';
 @Component({
   selector: 'app-navbar-admin',
   templateUrl: './navbar-admin.component.html',
@@ -10,13 +11,14 @@ import { LoginService
 export class NavbarAdminComponent implements OnInit {
 
   isActive(path: string): boolean {
-  return this.router.url === path;
-}
+    return this.router.url === path;
+  }
+
   isLoggedIn = false;
-  user:any = null;
+  user: any = null;
   contenido: any;
 
-  constructor(public login:LoginService,private router:Router) { }
+  constructor(public login: LoginService, private router: Router) { }
 
   ngOnInit(): void {
     this.isLoggedIn = this.login.isLoggedIn();
@@ -27,8 +29,6 @@ export class NavbarAdminComponent implements OnInit {
         this.user = this.login.getUser();
       }
     )
-    ///
-
 
   }
 
@@ -38,13 +38,13 @@ export class NavbarAdminComponent implements OnInit {
   }
 
   hayContenidoEnPagina(): boolean {
-    // Verificar si la variable "contenido" tiene algún valor
     return !!this.contenido;
   }
+
   status = false;
-  addToggle()
-  {
-    this.status = !this.status;       
+  
+  addToggle() {
+    this.status = !this.status;
   }
 
 }

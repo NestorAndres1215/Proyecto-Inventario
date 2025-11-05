@@ -6,8 +6,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PrincipalComponent } from './pages/admin/principal/principal.component';
 import { PerfilComponent } from './pages/admin/perfil/perfil.component';
-
-
 import { ProveedorComponent } from './pages/admin/proveedor/proveedor.component';
 import { ProductosComponent } from './pages/admin/productos/productos.component';
 import { UsuarioComponent } from './pages/admin/usuario/usuario.component';

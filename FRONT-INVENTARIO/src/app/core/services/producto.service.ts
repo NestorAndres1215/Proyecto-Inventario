@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { API_ENDPOINTS } from 'src/app/core/constants/api-endpoints';
 import { ProductoValidator } from 'src/app/core/validator/producto.validator';
+import { Producto } from '../models/producto';
 
 @Injectable({
   providedIn: 'root'
@@ -33,8 +34,8 @@ export class ProductoService {
   /** ========================
    *  CREAR PRODUCTO
    * ======================== */
-  agregarProducto(producto: any) {
-    return this.http.post(`${baserUrl}${API_ENDPOINTS.productos.base}`, producto);
+  agregarProducto(producto: Producto): Observable<Producto> {
+    return this.http.post<Producto>(`${baserUrl}${API_ENDPOINTS.productos.base}/`, producto)
   }
 
   /** ========================

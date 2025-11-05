@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
+import { Producto } from 'src/app/core/models/producto';
 
 interface Proveedor {
   proveedorId: number;
@@ -58,7 +59,7 @@ export class CrearProductoComponent implements OnInit {
     return;
   }
 
-  const producto = this.productoForm.value;
+  const producto: Producto = this.productoForm.value;
 
   this.productoService.agregarProducto(producto)
     .subscribe({

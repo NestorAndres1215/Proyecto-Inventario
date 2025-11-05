@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReclamoService } from 'src/app/core/services/reclamo.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-reclamo-activados',
@@ -8,24 +9,28 @@ import { ReclamoService } from 'src/app/core/services/reclamo.service';
 })
 export class ListarReclamoActivadosComponent implements OnInit {
 
-  reclamo: any = [];
-  reclamos: any;
-  constructor(
-    private reclamoService: ReclamoService
+  reclamos: any[] = [];
+  cargando: boolean = false;
 
-  ) { }
+  constructor(private reclamoService: ReclamoService) { }
 
   ngOnInit(): void {
-    this.obtenerReclamoActivado();
+    this.obtenerReclamosActivos();
   }
-  obtenerReclamoActivado() {
-    this.reclamoService.listarReclamosActivos().subscribe(
-      (reclamos: any) => {
-        this.reclamos = reclamos;
+
+  obtenerReclamosActivos() {
+    this.cargando = true;
+
+    this.reclamoService.listarReclamosActivos().subscribe({
+      next: (data: any[]) => {
+        this.reclamos = data;
+        this.cargando = false;
       },
-      (error: any) => {
-        console.log("Error al obtener las marcas: ", error);
+      error: (error) => {
+        console.error("Error al obtener los reclamos activos:", error);
+        this.cargando = false;
+        Swal.fire("Error", "No se pudieron cargar los reclamos activos", "error");
       }
-    );
+    });
   }
 }

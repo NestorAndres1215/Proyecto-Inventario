@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReclamoService } from 'src/app/core/services/reclamo.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-reclamo-desactivados',
@@ -8,25 +9,29 @@ import { ReclamoService } from 'src/app/core/services/reclamo.service';
 })
 export class ListarReclamoDesactivadosComponent implements OnInit {
 
-  reclamo: any = [];
-  reclamos: any;
-  constructor(
-    private reclamoService: ReclamoService
+  reclamos: any[] = [];
+  cargando: boolean = false;
 
-  ) { }
+  constructor(private reclamoService: ReclamoService) { }
 
   ngOnInit(): void {
-    this.obtenerReclamoDesactivados();
+    this.obtenerReclamosDesactivados();
   }
-  obtenerReclamoDesactivados() {
-    this.reclamoService.listarReclamosDesactivados().subscribe(
-      (reclamos: any) => {
-        this.reclamos = reclamos;
+
+  obtenerReclamosDesactivados() {
+    this.cargando = true;
+
+    this.reclamoService.listarReclamosDesactivados().subscribe({
+      next: (data: any[]) => {
+        this.reclamos = data;
+        this.cargando = false;
       },
-      (error: any) => {
-        console.log("Error al obtener las marcas: ", error);
+      error: (error) => {
+        console.error("Error al obtener los reclamos:", error);
+        this.cargando = false;
+        Swal.fire("Error", "No se pudieron cargar los reclamos desactivados", "error");
       }
-    );
+    });
   }
 
 }

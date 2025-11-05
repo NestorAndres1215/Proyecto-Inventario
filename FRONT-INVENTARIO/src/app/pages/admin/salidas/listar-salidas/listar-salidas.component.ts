@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ReportesService } from 'src/app/core/services/reportes.service';
 import { SalidaService } from 'src/app/core/services/salida.service';
+import { ReportesService } from 'src/app/core/services/reportes.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-salidas',
@@ -9,43 +9,43 @@ import { SalidaService } from 'src/app/core/services/salida.service';
   styleUrls: ['./listar-salidas.component.css']
 })
 export class ListarSalidasComponent implements OnInit {
-  detalleSalida: any[] = [];
- 
- 
-  constructor(private http: HttpClient,
+
+  salidas: any[] = [];
+
+  constructor(
     private salidaService: SalidaService,
-    private reporteSalida:ReportesService
+    private reporteSalida: ReportesService
   ) { }
+
   ngOnInit(): void {
-    this.obtenerSalida();
- 
+    this.listarSalidas();
   }
-  obtenerSalida() {
-    console.log("llego pppipippi")
-    this.salidaService.listarSalidas().subscribe(
-      (detalleSalida: any) => {
-        this.detalleSalida = detalleSalida;
+
+  listarSalidas() {
+    this.salidaService.listarSalidas().subscribe({
+      next: (data: any[]) => {
+        this.salidas = data;
       },
-      (error: any) => {
-        console.log("Error al obtener las marcas: ", error);
+      error: (error) => {
+        console.error("Error al obtener las salidas:", error);
+        Swal.fire("Error", "No se pudieron cargar las salidas", "error");
       }
-    );
-  }
-
-
-  descargarPDF() {
-    this.reporteSalida.descargarSalida().subscribe((data: Blob) => {
-      const blob = new Blob([data], { type: 'application/pdf' });
-      const urlBlob = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = urlBlob;
-      a.download = 'informe_detalle_salidas_productos.pdf';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(urlBlob);
-      document.body.removeChild(a);
     });
   }
 
+  descargarPDF() {
+    this.reporteSalida.descargarSalida().subscribe({
+      next: (data: Blob) => {
+        const url = window.URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'informe_detalle_salidas_productos.pdf';
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        Swal.fire("Error", "No se pudo generar el PDF", "error");
+      }
+    });
+  }
 }

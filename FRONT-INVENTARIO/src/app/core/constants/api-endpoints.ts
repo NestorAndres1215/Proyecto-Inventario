@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
   },
   productos: {
     base: '/producto',
+    actualizar: '/producto/actualizar',
     activados: '/producto/activadas',
     desactivados: '/producto/desactivadas',
     activar: '/producto/activar',

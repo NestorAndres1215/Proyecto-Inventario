@@ -41,50 +41,19 @@ export class ProductoService {
   /** ========================
    *  ACTUALIZAR PRODUCTO
    * ======================== */
-  actualizarProducto(productoId: number, producto: any): Observable<any> {
-    if (!ProductoValidator.esProductoValido(producto)) {
-      return throwError(() => new Error('Datos del producto inválidos.'));
-    }
-
-    const formData = this.crearFormData(producto);
-    const headers = new HttpHeaders({ enctype: 'multipart/form-data' });
-
-    return this.http
-      .put(`${baserUrl}${API_ENDPOINTS.productos.base}/${productoId}`, formData, { headers })
-      .pipe(catchError(this.handleError));
+  actualizarProducto(producto: Producto): Observable<Producto> {
+    return this.http.put<Producto>(`${baserUrl}${API_ENDPOINTS.productos.actualizar}/`, producto)
   }
 
   /** ========================
    *  ACTIVAR / DESACTIVAR
    * ======================== */
   desactivarProducto(productoId: number): Observable<any> {
-    return this.http
-      .post(`${baserUrl}${API_ENDPOINTS.productos.desactivar}/${productoId}`, {})
-      .pipe(catchError(this.handleError));
+    return this.http.post(`${baserUrl}${API_ENDPOINTS.productos.desactivar}/${productoId}`, {});
   }
 
   activarProducto(productoId: number): Observable<any> {
-    return this.http
-      .post(`${baserUrl}${API_ENDPOINTS.productos.activar}/${productoId}`, {})
-      .pipe(catchError(this.handleError));
+    return this.http.post(`${baserUrl}${API_ENDPOINTS.productos.activar}/${productoId}`, {});
   }
 
-  /** ========================
-   *  MÉTODOS PRIVADOS
-   * ======================== */
-  private crearFormData(producto: any): FormData {
-    const formData = new FormData();
-    formData.append('nombre', producto.nombre);
-    formData.append('descripcion', producto.descripcion);
-    formData.append('precio', producto.precio.toString());
-    formData.append('stock', producto.stock.toString());
-    formData.append('ubicacion', producto.ubicacion);
-    formData.append('proveedorId', producto.proveedor?.proveedorId?.toString() || '');
-    return formData;
-  }
-
-  private handleError(error: any) {
-    console.error('Error en la solicitud HTTP:', error);
-    return throwError(() => new Error('Error en el servicio de producto.'));
-  }
 }

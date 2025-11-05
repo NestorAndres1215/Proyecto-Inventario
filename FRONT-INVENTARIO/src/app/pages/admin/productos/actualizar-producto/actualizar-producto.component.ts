@@ -4,20 +4,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
+import { Producto } from 'src/app/core/models/producto';
 
 interface Proveedor {
   proveedorId: number;
   nombre?: string;
 }
 
-interface Producto {
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  stock: number;
-  ubicacion: string;
-  proveedor: Proveedor;
-}
+
 interface AlertMessage {
   icon: SweetAlertIcon;
   title: string;
@@ -87,7 +81,7 @@ export class ActualizarProductoComponent implements OnInit {
   }
 
   private cargarProveedores(): void {
-    this.proveedorService.listarProveedorActivadas().subscribe({
+    this.proveedorService.listarProveedoresActivos().subscribe({
       next: (data: Proveedor[]) => this.proveedores = data,
       error: (err) => console.error('Error al cargar proveedores:', err)
     });
@@ -102,7 +96,7 @@ export class ActualizarProductoComponent implements OnInit {
           precio: producto.precio,
           stock: producto.stock,
           ubicacion: producto.ubicacion,
-          proveedorId: producto.proveedor.proveedorId
+          proveedorId: producto.proveedorId
         });
       },
       error: (err) => console.error('Error al cargar producto:', err)
@@ -110,23 +104,26 @@ export class ActualizarProductoComponent implements OnInit {
   }
 
   actualizarProducto(): void {
-    if (this.productoForm.invalid) {
-      Swal.fire(ALERT_MESSAGES.missingFields);
-      return;
-    }
-
-    this.productoService.actualizarProducto(this.productoId, this.productoForm.value)
-      .subscribe({
-        next: () => {
-          Swal.fire(ALERT_MESSAGES.updateSuccess)
-            .then(() => this.router.navigate(['/admin/producto']));
-        },
-        error: (err) => {
-          console.error('Error al actualizar producto:', err);
-          Swal.fire(ALERT_MESSAGES.updateError);
-        }
-      });
+  if (this.productoForm.invalid) {
+    Swal.fire(ALERT_MESSAGES.missingFields);
+    return;
   }
+
+  const producto: Producto = this.productoForm.value; // Incluye id
+
+  this.productoService.actualizarProducto(producto)
+    .subscribe({
+      next: () => {
+        Swal.fire(ALERT_MESSAGES.updateSuccess)
+          .then(() => this.router.navigate(['/admin/producto']));
+      },
+      error: (err) => {
+        console.error('Error al actualizar producto:', err);
+        Swal.fire(ALERT_MESSAGES.updateError);
+      }
+    });
+}
+
 
   validarNumeroPositivo(event: Event): void {
     const input = event.target as HTMLInputElement;

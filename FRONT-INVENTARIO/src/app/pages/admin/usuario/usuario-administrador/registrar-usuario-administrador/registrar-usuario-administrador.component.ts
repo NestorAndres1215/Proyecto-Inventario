@@ -57,7 +57,7 @@ export class RegistrarUsuarioAdministradorComponent implements OnInit {
       fechaNacimiento: this.form.value.fechaNacimiento,
       edad: this.form.value.edad
     };
-    this.userService.añadirUsuario(user).subscribe({
+    this.userService.registrarAdmin(user).subscribe({
       next: (data) => {
         Swal.fire('Usuario guardado', 'Usuario registrado con éxito en el sistema', 'success');
         this.router.navigate(['/admin/usuario']);

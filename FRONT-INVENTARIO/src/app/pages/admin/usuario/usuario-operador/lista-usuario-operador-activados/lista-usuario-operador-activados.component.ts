@@ -14,22 +14,24 @@ export class ListaUsuarioOperadorActivadosComponent implements OnInit {
   usuarioRoles: any[] = [];
 
   constructor(private usuarioRolService: UsuarioService,
-    private reporteSalida:ReportesService) {}
+    private reporteSalida: ReportesService) { }
 
   ngOnInit(): void {
     this.obtenerUsuarioRoles();
   }
 
   obtenerUsuarioRoles(): void {
-    this.usuarioRolService.obtenerNormalUsuarioRoles().subscribe(
-      (usuarioRoles: any[]) => {
-        this.usuarioRoles = usuarioRoles;
-      },
-      (error: any) => {
-        console.error('Error al obtener los usuario-roles', error);
-      }
-    );
+    this.usuarioRolService.obtenerUsuariosNormalesActivos()
+      .subscribe({
+        next: (usuarioRoles: any[]) => {
+          this.usuarioRoles = usuarioRoles;
+        },
+        error: (error: any) => {
+          console.error('Error al obtener los usuario-roles:', error);
+        }
+      });
   }
+
   pageSize = 3; // Tamaño de página (número de elementos por página)
   pageIndex = 0; // 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -38,31 +40,31 @@ export class ListaUsuarioOperadorActivadosComponent implements OnInit {
     this.pageSize = event.pageSize;
   }
   desactivarUsuario(usuarioRolId: any): void {
-    this.usuarioRolService.desactivarUsuario(usuarioRolId).subscribe(
-      (respuesta: any) => {
-        // Desactivación exitosa
-        Swal.fire({
-          icon: 'success',
-          title: 'Usuario desactivado',
-          text: respuesta,
-          confirmButtonText: 'Aceptar' // Opcional, puedes personalizar el botón de confirmación
-        });
+    this.usuarioRolService.desactivarUsuario(usuarioRolId)
+      .subscribe({
+        next: (respuesta: any) => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario desactivado',
+            text: respuesta,
+            confirmButtonText: 'Aceptar'
+          });
 
-        this.obtenerUsuarioRoles();
-      },
-      (error: any) => {
-        // Error al desactivar el usuario
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al desactivar usuario',
-          text: error,
-          confirmButtonText: 'Aceptar' // Opcional, puedes personalizar el botón de confirmación
-        });
+          this.obtenerUsuarioRoles(); // Refrescar la tabla
+        },
+        error: (error: any) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al desactivar usuario',
+            text: error?.error || 'Ocurrió un error inesperado',
+            confirmButtonText: 'Aceptar'
+          });
 
-        // Resto del código de error
-      }
-    );
+          console.error('Error al desactivar usuario:', error);
+        }
+      });
   }
+
   descargarPDF() {
     this.reporteSalida.descargarUsuarioOperador().subscribe((data: Blob) => {
       const blob = new Blob([data], { type: 'application/pdf' });

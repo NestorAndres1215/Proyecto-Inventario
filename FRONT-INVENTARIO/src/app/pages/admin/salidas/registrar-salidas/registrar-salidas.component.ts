@@ -15,18 +15,17 @@ import Swal from 'sweetalert2';
 export class RegistrarSalidasComponent implements OnInit {
 
   salidaForm!: FormGroup;
-  producto: any[] = [];
-  listaDetalleSalida: any[] = [];
-  isLoggedIn = false;
-  user: any = null;
+  productos: any[] = [];
+  listaDetalleSalida: DetalleSalida[] = [];
+  user: any = null; 
 
   constructor(
     private fb: FormBuilder,
     private productoService: ProductoService,
-    private login: LoginService,
+    private loginService: LoginService,
     private salidaService: SalidaService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.salidaForm = this.fb.group({
@@ -40,58 +39,69 @@ export class RegistrarSalidasComponent implements OnInit {
     this.obtenerUsuario();
   }
 
-  obtenerProducto() {
+  obtenerProducto(): void {
     this.productoService.listarProductosActivos().subscribe({
-      next: (data: any) => this.producto = data,
-      error: (err) => console.error(err)
+      next: (data) => this.productos = data,
+      error: (err) => console.error('Error al obtener productos:', err)
     });
   }
 
-  obtenerUsuario() {
-    this.isLoggedIn = this.login.isLoggedIn();
-    this.user = this.login.getUser();
-    this.login.loginStatusSubject.asObservable().subscribe(() => {
-      this.isLoggedIn = this.login.isLoggedIn();
-      this.user = this.login.getUser();
-    });
+  obtenerUsuario(): void {
+    this.user = this.loginService.getUser();
   }
 
-  agregarProducto() {
+  agregarProducto(): void {
     if (this.salidaForm.invalid) {
-      Swal.fire('Error', 'Complete todos los campos antes de agregar.', 'error');
+      Swal.fire('Campos incompletos', 'Complete todos los campos antes de agregar.', 'warning');
+      return;
+    }
+
+    const { productoId, descripcion, cantidad, fechaSalida } = this.salidaForm.value;
+
+    // 1️⃣ Verificar si el producto ya fue agregado
+    if (this.listaDetalleSalida.some(d => d.producto.productoId === productoId)) {
+      Swal.fire('Advertencia', 'Este producto ya fue agregado en la salida.', 'warning');
       return;
     }
 
     const detalle: DetalleSalida = {
-      producto: { productoId: this.salidaForm.value.productoId },
-      descripcion: this.salidaForm.value.descripcion,
-      cantidad: this.salidaForm.value.cantidad,
-      salida: { fechaSalida: this.salidaForm.value.fechaSalida },
+      producto: { productoId },
+      descripcion,
+      cantidad,
+      salida: { fechaSalida },
       usuario: { id: this.user.id }
     };
 
     this.listaDetalleSalida.push(detalle);
-    this.salidaForm.reset();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Producto agregado',
+      timer: 1200,
+      showConfirmButton: false
+    });
+
+    this.salidaForm.reset({ fechaSalida }); // Mantener la fecha para agregar más rápido
   }
 
-  enviarSalida() {
+  enviarSalida(): void {
     if (this.listaDetalleSalida.length === 0) {
-      Swal.fire('Error', 'Agregue al menos un registro antes de enviar.', 'error');
+      Swal.fire('Sin registros', 'Agregue al menos un producto antes de enviar.', 'warning');
       return;
     }
 
-    this.salidaService.crearSalidaConDetalles(this.listaDetalleSalida).subscribe({
-      next: () => {
-        Swal.fire('Éxito', 'La salida se ha enviado correctamente', 'success');
-        this.listaDetalleSalida = [];
-        this.salidaForm.reset();
-        this.router.navigate(['/admin/salidas']);
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Hubo un problema al enviar la salida', 'error');
-      }
-    });
+    this.salidaService.crearSalidaConDetalles(this.listaDetalleSalida)
+      .subscribe({
+        next: () => {
+          Swal.fire('Éxito', 'La salida se ha registrado correctamente', 'success');
+          this.listaDetalleSalida = [];
+          this.salidaForm.reset();
+          this.router.navigate(['/admin/salidas']);
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'Hubo un problema al registrar la salida', 'error');
+        }
+      });
   }
-
 }

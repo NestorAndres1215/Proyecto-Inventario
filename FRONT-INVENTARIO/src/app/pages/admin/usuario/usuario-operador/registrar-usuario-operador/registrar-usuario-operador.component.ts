@@ -60,7 +60,7 @@ export class RegistrarUsuarioOperadorComponent implements OnInit {
       fechaNacimiento: this.form.value.fechaNacimiento,
       edad: this.form.value.edad
     };
-    this.userService.añadirNormal(user).subscribe({
+    this.userService.registrarNormal(user).subscribe({
       next: (data) => {
         Swal.fire('Usuario guardado', 'Usuario registrado con éxito en el sistema', 'success');
         this.router.navigate(['/admin/usuario']);

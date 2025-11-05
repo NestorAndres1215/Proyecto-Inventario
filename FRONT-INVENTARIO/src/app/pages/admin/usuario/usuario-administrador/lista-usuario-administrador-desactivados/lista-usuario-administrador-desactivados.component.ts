@@ -13,27 +13,28 @@ export class ListaUsuarioAdministradorDesactivadosComponent implements OnInit {
 
   usuarioRoles: any[] = [];
 
-  constructor(private usuarioRolService: UsuarioService) {}
+  constructor(private usuarioRolService: UsuarioService) { }
 
   ngOnInit(): void {
     this.obtenerUsuarioRoles();
   }
 
   obtenerUsuarioRoles(): void {
-    this.usuarioRolService.obtenerAdminUsuarioRolesDesactivados().subscribe(
-      (usuarioRoles: any[]) => {
-        console.log(usuarioRoles)
-        this.usuarioRoles = usuarioRoles;
-      },
-      (error: any) => {
-        console.error('Error al obtener los usuario-roles', error);
-      }
-    );
+    this.usuarioRolService.obtenerAdminUsuariosDesactivados()
+      .subscribe({
+        next: (usuarioRoles: any[]) => {
+          this.usuarioRoles = usuarioRoles;
+        },
+        error: (error: any) => {
+          console.error('Error al obtener los usuario-roles:', error);
+        }
+      });
   }
+
   pageIndex = 0;
 
   pageSize = 3; // Tamaño de página (número de elementos por página)
- 
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
@@ -41,29 +42,29 @@ export class ListaUsuarioAdministradorDesactivadosComponent implements OnInit {
   }
 
   activarUsuario(usuarioRolId: any): void {
-    this.usuarioRolService.activarUsuario(usuarioRolId).subscribe(
-      (respuesta: any) => {
-        // Desactivación exitosa
-        Swal.fire({
-          icon: 'success',
-          title: 'Usuario desactivado',
-          text: respuesta,
-          confirmButtonText: 'Aceptar' // Opcional, puedes personalizar el botón de confirmación
-        });
+    this.usuarioRolService.activarUsuario(usuarioRolId)
+      .subscribe({
+        next: (respuesta: any) => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario activado',
+            text: respuesta,
+            confirmButtonText: 'Aceptar'
+          });
 
-        this.obtenerUsuarioRoles();
-      },
-      (error: any) => {
-        // Error al desactivar el usuario
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al desactivar usuario',
-          text: error,
-          confirmButtonText: 'Aceptar' // Opcional, puedes personalizar el botón de confirmación
-        });
+          this.obtenerUsuarioRoles(); // Actualiza tabla
+        },
+        error: (error: any) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al activar usuario',
+            text: error?.error || 'Ocurrió un error inesperado.',
+            confirmButtonText: 'Aceptar'
+          });
 
-        // Resto del código de error
-      }
-    );
+          console.error('Error al activar usuario:', error);
+        }
+      });
   }
+
 }

@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.ProveedorDTO;
 import com.example.backend.entity.Proveedor;
 import com.example.backend.repository.ProveedorRepository;
 
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ProveedorService {
@@ -45,48 +47,43 @@ public class ProveedorService {
     }
 
     // ------------------ CREAR ------------------
-    public Proveedor crearProveedor(String nombre, String ruc, String direccion,
-                                    String telefono, String email, Boolean estado) {
+    public Proveedor crearProveedor(ProveedorDTO proveedorDTO) {
 
-        validarDatosProveedor(nombre, ruc, telefono, email);
+        validarDatosProveedor(proveedorDTO);
 
-        if (estado == null) {
-            estado = true;
-        }
 
         Proveedor proveedor = Proveedor.builder()
-                .nombre(nombre.trim())
-                .ruc(ruc.trim())
-                .direccion(direccion != null ? direccion.trim() : null)
-                .telefono(telefono != null ? telefono.trim() : null)
-                .email(email != null ? email.trim() : null)
-                .estado(estado)
+                .nombre(proveedorDTO.getNombre())
+                .ruc(proveedorDTO.getRuc())
+                .direccion(proveedorDTO.getDireccion())
+                .telefono(proveedorDTO.getTelefono())
+                .email(proveedorDTO.getEmail())
+                .estado(true)
                 .build();
 
         return proveedorRepository.save(proveedor);
     }
 
     // ------------------ ACTUALIZAR ------------------
-    public Proveedor actualizarProveedor(Long id, String nombre, String ruc,
-                                         String direccion, String telefono, String email) {
+    public Proveedor actualizarProveedor(ProveedorDTO proveedorDTO) {
 
-        Proveedor proveedor = proveedorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(String.format(MENSAJE_PROVEEDOR_NO_ENCONTRADO, id)));
+        Proveedor proveedor = proveedorRepository.findById(proveedorDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException(MENSAJE_PROVEEDOR_NO_ENCONTRADO));
 
-        validarDatosProveedor(nombre, ruc, telefono, email);
+        validarDatosProveedor(proveedorDTO);
 
         // Evitar duplicados de RUC si cambia
-        proveedorRepository.findByRuc(ruc).ifPresent(existing -> {
-            if (!existing.getProveedorId().equals(id)) {
+        proveedorRepository.findByRuc(proveedorDTO.getRuc()).ifPresent(existing -> {
+            if (!existing.getProveedorId().equals(proveedorDTO.getId())) {
                 throw new IllegalStateException(MENSAJE_DUPLICADO_RUC);
             }
         });
 
-        proveedor.setNombre(nombre.trim());
-        proveedor.setRuc(ruc.trim());
-        proveedor.setDireccion(direccion != null ? direccion.trim() : null);
-        proveedor.setTelefono(telefono != null ? telefono.trim() : null);
-        proveedor.setEmail(email != null ? email.trim() : null);
+        proveedor.setNombre(proveedorDTO.getNombre());
+        proveedor.setRuc(proveedorDTO.getRuc());
+        proveedor.setDireccion(proveedorDTO.getDireccion());
+        proveedor.setTelefono(proveedorDTO.getTelefono());
+        proveedor.setEmail(proveedorDTO.getEmail());
 
         return proveedorRepository.save(proveedor);
     }
@@ -111,28 +108,28 @@ public class ProveedorService {
     }
 
     // ------------------ VALIDACIONES ------------------
-    private void validarDatosProveedor(String nombre, String ruc, String telefono, String email) {
-        if (nombre == null || nombre.trim().isEmpty()) {
+    private void validarDatosProveedor(ProveedorDTO proveedorDTO) {
+        if (proveedorDTO.getNombre() == null || proveedorDTO.getNombre().trim().isEmpty()) {
             throw new IllegalArgumentException(MENSAJE_NOMBRE_OBLIGATORIO);
         }
 
-        if (ruc == null || ruc.trim().isEmpty()) {
+        if (proveedorDTO.getRuc() == null || proveedorDTO.getRuc().trim().isEmpty()) {
             throw new IllegalArgumentException(MENSAJE_RUC_OBLIGATORIO);
         }
 
-        if (!ruc.matches(PATRON_RUC)) {
+        if (!proveedorDTO.getRuc().matches(PATRON_RUC)) {
             throw new IllegalArgumentException(MENSAJE_RUC_INVALIDO);
         }
 
-        if (email != null && !email.trim().isEmpty() && !email.matches(PATRON_EMAIL)) {
+        if (proveedorDTO.getEmail() != null && !proveedorDTO.getEmail().trim().isEmpty() && !proveedorDTO.getEmail().matches(PATRON_EMAIL)) {
             throw new IllegalArgumentException(MENSAJE_EMAIL_INVALIDO);
         }
 
-        if (telefono != null && !telefono.trim().isEmpty() && !telefono.matches(PATRON_TELEFONO)) {
+        if (proveedorDTO.getTelefono() != null && !proveedorDTO.getTelefono().trim().isEmpty() && !proveedorDTO.getTelefono().matches(PATRON_TELEFONO)) {
             throw new IllegalArgumentException(MENSAJE_TELEFONO_INVALIDO);
         }
 
-        if (proveedorRepository.findByRuc(ruc.trim()).isPresent()) {
+        if (proveedorRepository.findByRuc(proveedorDTO.getRuc().trim()).isPresent()) {
             throw new IllegalArgumentException(MENSAJE_DUPLICADO_RUC);
         }
     }

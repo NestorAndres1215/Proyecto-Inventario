@@ -10,7 +10,7 @@ import { ProductoValidator } from 'src/app/core/validator/producto.validator';
   providedIn: 'root'
 })
 export class ProductoService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /** ========================
    *  LISTAR PRODUCTOS
@@ -33,17 +33,8 @@ export class ProductoService {
   /** ========================
    *  CREAR PRODUCTO
    * ======================== */
-  agregarProducto(producto: any): Observable<any> {
-    if (!ProductoValidator.esProductoValido(producto)) {
-      return throwError(() => new Error('Datos del producto inválidos.'));
-    }
-
-    const formData = this.crearFormData(producto);
-    const headers = new HttpHeaders({ enctype: 'multipart/form-data' });
-
-    return this.http
-      .post<any>(`${baserUrl}${API_ENDPOINTS.productos.base}/`, formData, { headers })
-      .pipe(catchError(this.handleError));
+  agregarProducto(producto: any) {
+    return this.http.post(`${baserUrl}${API_ENDPOINTS.productos.base}`, producto);
   }
 
   /** ========================

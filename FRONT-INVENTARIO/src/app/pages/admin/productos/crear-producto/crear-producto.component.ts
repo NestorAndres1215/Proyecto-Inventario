@@ -52,31 +52,32 @@ export class CrearProductoComponent implements OnInit {
     });
   }
 
-  formSubmit(): void {
-    if (this.productoForm.invalid) {
-      Swal.fire(ALERT_MESSAGES.missingFields);
-      return;
-    }
-
-    const { nombre, descripcion, precio, stock, ubicacion, proveedorId } = this.productoForm.value;
-
-    this.productoService.agregarProducto(nombre, precio, descripcion, stock, ubicacion, proveedorId)
-      .subscribe({
-        next: () => {
-          Swal.fire(ALERT_MESSAGES.saveSuccess).then(() => {
-            this.productoForm.reset();
-            this.router.navigate(['/admin/producto']);
-          });
-        },
-        error: (err) => {
-          console.error('Error al guardar producto:', err);
-          Swal.fire(ALERT_MESSAGES.saveError);
-        }
-      });
+ formSubmit(): void {
+  if (this.productoForm.invalid) {
+    Swal.fire(ALERT_MESSAGES.missingFields);
+    return;
   }
 
+  const producto = this.productoForm.value;
+
+  this.productoService.agregarProducto(producto)
+    .subscribe({
+      next: () => {
+        Swal.fire(ALERT_MESSAGES.saveSuccess).then(() => {
+          this.productoForm.reset();
+          this.router.navigate(['/admin/producto']);
+        });
+      },
+      error: (err) => {
+        console.error('Error al guardar producto:', err);
+        Swal.fire(ALERT_MESSAGES.saveError);
+      }
+    });
+}
+
+
   private obtenerProveedores(): void {
-    this.proveedorService.listarProveedorActivadas().subscribe({
+    this.proveedorService.listarProveedoresActivos().subscribe({
       next: (data: Proveedor[]) => this.proveedores = data,
       error: (err) => console.error('Error al obtener proveedores:', err)
     });

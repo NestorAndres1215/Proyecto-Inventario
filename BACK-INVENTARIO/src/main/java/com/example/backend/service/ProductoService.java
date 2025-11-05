@@ -1,14 +1,17 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.ProductoDTO;
 import com.example.backend.entity.Producto;
 import com.example.backend.entity.Proveedor;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.ProveedorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProductoService {
@@ -66,25 +69,20 @@ public class ProductoService {
     }
 
     // ------------------ CREAR ------------------
-    public Producto agregarProducto(String nombre, String precio, String descripcion,
-                                    int stock, String ubicacion, Boolean estado, Long proveedorId) {
+    public Producto agregarProducto(ProductoDTO productoDTO) {
 
-        validarDatosProducto(nombre, precio, stock, descripcion, ubicacion);
+        validarDatosProducto(productoDTO);
 
-        if (estado == null) {
-            estado = true;
-        }
-
-        Proveedor proveedor = proveedorRepository.findById(proveedorId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(MENSAJE_PROVEEDOR_NO_ENCONTRADO, proveedorId)));
+        Proveedor proveedor = proveedorRepository.findById(productoDTO.getProveedorId())
+                .orElseThrow(() -> new EntityNotFoundException(MENSAJE_PROVEEDOR_NO_ENCONTRADO));
 
         Producto producto = Producto.builder()
-                .nombre(nombre.trim())
-                .precio(precio.trim())
-                .descripcion(descripcion != null ? descripcion.trim() : null)
-                .ubicacion(ubicacion != null ? ubicacion.trim() : null)
-                .stock(stock)
-                .estado(estado)
+                .nombre(productoDTO.getNombre())
+                .precio(productoDTO.getPrecio())
+                .descripcion(productoDTO.getDescripcion())
+                .ubicacion(productoDTO.getUbicacion())
+                .stock(productoDTO.getStock())
+                .estado(true)
                 .proveedor(proveedor)
                 .build();
 
@@ -92,51 +90,45 @@ public class ProductoService {
     }
 
     // ------------------ ACTUALIZAR ------------------
-    public Producto actualizarProducto(Long id, String nombre, String precio, String descripcion,
-                                       int stock, String ubicacion, Long proveedorId) {
+    public Producto actualizarProducto(ProductoDTO productoDTO) {
 
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("El ID del producto debe ser un número positivo.");
-        }
+        Producto producto = productoRepository.findById(productoDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException(MENSAJE_PRODUCTO_NO_ENCONTRADO));
 
-        Producto producto = productoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(MENSAJE_PRODUCTO_NO_ENCONTRADO, id)));
+        validarDatosProducto(productoDTO);
 
-        validarDatosProducto(nombre, precio, stock, descripcion, ubicacion);
+        Proveedor proveedor = proveedorRepository.findById(productoDTO.getProveedorId())
+                .orElseThrow(() -> new EntityNotFoundException(MENSAJE_PROVEEDOR_NO_ENCONTRADO));
 
-        Proveedor proveedor = proveedorRepository.findById(proveedorId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(MENSAJE_PROVEEDOR_NO_ENCONTRADO, proveedorId)));
-
-        producto.setNombre(nombre.trim());
-        producto.setPrecio(precio.trim());
-        producto.setDescripcion(descripcion != null ? descripcion.trim() : null);
-        producto.setUbicacion(ubicacion != null ? ubicacion.trim() : null);
-        producto.setStock(stock);
+        producto.setNombre(productoDTO.getNombre());
+        producto.setPrecio(productoDTO.getPrecio());
+        producto.setDescripcion(productoDTO.getDescripcion());
+        producto.setUbicacion(productoDTO.getUbicacion());
+        producto.setStock(productoDTO.getStock());
         producto.setProveedor(proveedor);
 
         return productoRepository.save(producto);
     }
 
     // ------------------ VALIDACIONES ------------------
-    private void validarDatosProducto(String nombre, String precio, int stock,
-                                      String descripcion, String ubicacion) {
-        if (nombre == null || nombre.trim().isEmpty()) {
+    private void validarDatosProducto(ProductoDTO productoDTO) {
+        if (productoDTO.getNombre() == null || productoDTO.getNombre().trim().isEmpty()) {
             throw new IllegalArgumentException(MENSAJE_NOMBRE_OBLIGATORIO);
         }
-        if (precio == null || precio.trim().isEmpty()) {
+        if (productoDTO.getPrecio() == null || productoDTO.getPrecio().trim().isEmpty()) {
             throw new IllegalArgumentException(MENSAJE_PRECIO_OBLIGATORIO);
         }
-        if (stock < 0) {
+        if (productoDTO.getStock() < 0) {
             throw new IllegalArgumentException(MENSAJE_STOCK_NEGATIVO);
         }
-        if (nombre.length() > MAX_NOMBRE) {
-            throw new IllegalArgumentException(String.format(MENSAJE_MAX_100, "nombre"));
+        if (productoDTO.getNombre().length() > MAX_NOMBRE) {
+            throw new IllegalArgumentException(MENSAJE_MAX_100);
         }
-        if (descripcion != null && descripcion.length() > MAX_DESCRIPCION) {
-            throw new IllegalArgumentException(String.format(MENSAJE_MAX_255, "descripción"));
+        if (productoDTO.getDescripcion() != null && productoDTO.getDescripcion().length() > MAX_DESCRIPCION) {
+            throw new IllegalArgumentException(MENSAJE_MAX_255);
         }
-        if (ubicacion != null && ubicacion.length() > MAX_UBICACION) {
-            throw new IllegalArgumentException(String.format(MENSAJE_MAX_100, "ubicación"));
+        if (productoDTO.getUbicacion() != null && productoDTO.getUbicacion().length() > MAX_UBICACION) {
+            throw new IllegalArgumentException(MENSAJE_MAX_100);
         }
     }
 

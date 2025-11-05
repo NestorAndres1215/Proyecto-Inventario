@@ -32,8 +32,6 @@ public class ReclamoController {
 
     private final ReclamoService reclamoService;
 
-
-
     @GetMapping
     public List<Reclamos> obtenerProveedor() {
         return reclamoService.obtenerTodosLosReclamos();
@@ -57,7 +55,7 @@ public class ReclamoController {
     @PostMapping("/")
     public ResponseEntity<Reclamos> agregar(@RequestBody Reclamos reclamo) {
         Reclamos reclamoGuardado = reclamoService.agregarReclamo(reclamo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(reclamoGuardado);
+        return ResponseEntity.ok(reclamoGuardado);
     }
 
     @PostMapping("/activar/{id}")

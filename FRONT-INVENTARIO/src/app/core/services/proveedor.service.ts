@@ -25,7 +25,7 @@ export class ProveedorService {
   /** ========================
    *  CREAR NUEVO PROVEEDOR
    * ======================== */
-  agregarProveedor(proveedor: any): Observable<any> {
+  agregarProveedor(proveedor: any, ruc: any, direccion: any, telefono: any, email: any): Observable<any> {
     if (!ProveedorValidator.esProveedorValido(proveedor)) {
       throw new Error('Datos de proveedor inválidos');
     }

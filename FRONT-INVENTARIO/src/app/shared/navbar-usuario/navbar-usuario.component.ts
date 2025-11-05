@@ -9,13 +9,13 @@ import { LoginService } from 'src/app/core/services/login.service';
 })
 export class NavbarUsuarioComponent implements OnInit {
   isActive(path: string): boolean {
-  return this.router.url === path;
-}
+    return this.router.url === path;
+  }
   isLoggedIn = false;
-  user:any = null;
+  user: any = null;
   contenido: any;
 
-  constructor(public login:LoginService,private router:Router) { }
+  constructor(public login: LoginService, private router: Router) { }
 
   ngOnInit(): void {
     this.isLoggedIn = this.login.isLoggedIn();
@@ -31,7 +31,7 @@ export class NavbarUsuarioComponent implements OnInit {
 
   }
 
-   logout() {
+  logout() {
     this.login.logout();
     window.location.href = '';
   }
@@ -41,9 +41,8 @@ export class NavbarUsuarioComponent implements OnInit {
     return !!this.contenido;
   }
   status = false;
-  addToggle()
-  {
-    this.status = !this.status;       
+  addToggle() {
+    this.status = !this.status;
   }
 
 }

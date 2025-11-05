@@ -4,19 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.backend.dto.ProveedorDTO;
 import com.example.backend.service.ProveedorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.backend.entity.Proveedor;
 
@@ -63,30 +55,15 @@ public class ProveedorController {
 
     // crear proveedor
     @PostMapping("/")
-    public ResponseEntity<?> agregarProveedor(@RequestParam String nombre,
-                                              @RequestParam String ruc,
-                                              @RequestParam String direccion,
-                                              @RequestParam String telefono,
-                                              @RequestParam String email,
-                                              @RequestParam(value = "estado", required = false) Boolean estado) {
-        Proveedor creado = proveedorService.crearProveedor(nombre, ruc, direccion, telefono, email, estado);
+    public ResponseEntity<?> agregarProveedor(@RequestBody ProveedorDTO proveedorDTO) {
+        Proveedor creado = proveedorService.crearProveedor(proveedorDTO);
         return ResponseEntity.ok(creado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Proveedor> actualizarProveedor(@PathVariable Long id,
-                                                         @RequestParam String nombre,
-                                                         @RequestParam String ruc,
-                                                         @RequestParam String direccion,
-                                                         @RequestParam String telefono,
-                                                         @RequestParam String email) {
-        Proveedor actualizado = proveedorService.actualizarProveedor(id, nombre, ruc, direccion, telefono, email);
-
-        if (actualizado != null) {
-            return ResponseEntity.ok(actualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Proveedor> actualizarProveedor(@RequestBody ProveedorDTO proveedorDTO) {
+        Proveedor actualizado = proveedorService.actualizarProveedor(proveedorDTO);
+        return ResponseEntity.ok(actualizado);
     }
 
     @PostMapping("/activar/{id}")

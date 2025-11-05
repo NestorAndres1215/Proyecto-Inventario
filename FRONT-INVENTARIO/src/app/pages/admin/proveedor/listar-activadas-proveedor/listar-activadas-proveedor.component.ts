@@ -14,17 +14,17 @@ export class ListarActivadasProveedorComponent implements OnInit {
   proveedores: any[] = [];
 
   proveedorId: string = '';
-productos: any;
+  productos: any;
   //proveedores: any;
 
-  constructor(private proveedorService: ProveedorService,    private reporteSalida:ReportesService) { }
+  constructor(private proveedorService: ProveedorService, private reporteSalida: ReportesService) { }
 
   ngOnInit(): void {
     this.obtenerProveedr();
   }
 
   obtenerProveedr() {
-    this.proveedorService.listarProveedorActivadas().subscribe(
+    this.proveedorService.listarProveedoresActivos().subscribe(
       (marcas: any) => {
         this.proveedores = marcas;
       },
@@ -52,7 +52,7 @@ productos: any;
   restaurarProveedores() {
     this.nombre = ''; // Restablecer el valor del nombre a vacío
 
-    this.proveedorService.listarProveedorActivadas().subscribe(
+    this.proveedorService.listarProveedoresActivos().subscribe(
       (proveedores: any) => {
         this.proveedores = proveedores;
       },

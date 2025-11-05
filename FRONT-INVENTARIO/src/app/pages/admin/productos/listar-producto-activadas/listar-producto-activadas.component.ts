@@ -26,7 +26,7 @@ export class ListarProductoActivadasComponent implements OnInit {
   }
 
   obtenerProducto() {
-    this.productoService.listarProductoActivadas().subscribe(
+    this.productoService.listarProductosActivos().subscribe(
       (productos: any) => {
         this.productos = productos;
       },
@@ -89,7 +89,7 @@ export class ListarProductoActivadasComponent implements OnInit {
   restaurarProveedores() {
     this.nombre = ''; // Restablecer el valor del nombre a vacío
 
-    this.productoService.listarProductoActivadas().subscribe(
+    this.productoService.listarProductosActivos().subscribe(
       (proveedores: any) => {
         this.productos = proveedores;
       },

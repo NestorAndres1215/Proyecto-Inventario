@@ -28,7 +28,7 @@ export class ListarProductoDesactivadasComponent implements OnInit {
     try {
       if (this.nombre && this.productos) {
         this.productos = this.productos.filter((proveedor: any) =>
-          proveedor.nombre.toLowerCase().includes(this.nombre.toLowerCase()) 
+          proveedor.nombre.toLowerCase().includes(this.nombre.toLowerCase())
         );
       } else {
         this.restaurarProveedores();
@@ -43,7 +43,7 @@ export class ListarProductoDesactivadasComponent implements OnInit {
   restaurarProveedores() {
     this.nombre = ''; // Restablecer el valor del nombre a vacío
 
-    this.productoService.listarProductoDesactivadas().subscribe(
+    this.productoService.listarProductosDesactivados().subscribe(
       (proveedores: any) => {
         this.productos = proveedores;
       },
@@ -54,7 +54,7 @@ export class ListarProductoDesactivadasComponent implements OnInit {
   }
 
   obtenerProducto() {
-    this.productoService.listarProductoDesactivadas().subscribe(
+    this.productoService.listarProductosDesactivados().subscribe(
       (productos: any) => {
         this.productos = productos;
       },

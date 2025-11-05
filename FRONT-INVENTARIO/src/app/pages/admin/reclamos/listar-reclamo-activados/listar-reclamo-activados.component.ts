@@ -11,7 +11,7 @@ export class ListarReclamoActivadosComponent implements OnInit {
   reclamo: any = [];
   reclamos: any;
   constructor(
-    private reclamoService:ReclamoService
+    private reclamoService: ReclamoService
 
   ) { }
 
@@ -19,7 +19,7 @@ export class ListarReclamoActivadosComponent implements OnInit {
     this.obtenerReclamoActivado();
   }
   obtenerReclamoActivado() {
-    this.reclamoService.listarReclamoActivadas().subscribe(
+    this.reclamoService.listarReclamosActivos().subscribe(
       (reclamos: any) => {
         this.reclamos = reclamos;
       },

@@ -22,7 +22,7 @@ export class PrincipalComponent implements OnInit {
   ngOnInit(): void {
     this.actualizarUsuario();
     // Escucha cambios en el estado de login
-    this.loginService.loginStatusSubjec.asObservable().subscribe(() => {
+    this.loginService.loginStatusSubject.asObservable().subscribe(() => {
       this.actualizarUsuario();
     });
   }

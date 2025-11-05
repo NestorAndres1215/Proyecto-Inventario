@@ -61,7 +61,7 @@ export class GuardarReclamoComponent implements OnInit {
   obtenerUsuario() {
     this.isLoggedIn = this.login.isLoggedIn();
     this.user = this.login.getUser();
-    this.login.loginStatusSubjec.asObservable().subscribe(() => {
+    this.login.loginStatusSubject.asObservable().subscribe(() => {
       this.isLoggedIn = this.login.isLoggedIn();
       this.user = this.login.getUser();
     });

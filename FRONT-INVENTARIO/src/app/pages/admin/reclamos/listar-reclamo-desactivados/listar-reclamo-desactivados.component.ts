@@ -19,7 +19,7 @@ export class ListarReclamoDesactivadosComponent implements OnInit {
     this.obtenerReclamoDesactivados();
   }
   obtenerReclamoDesactivados() {
-    this.reclamoService.listarReclamoDesactivadas().subscribe(
+    this.reclamoService.listarReclamosDesactivados().subscribe(
       (reclamos: any) => {
         this.reclamos = reclamos;
       },

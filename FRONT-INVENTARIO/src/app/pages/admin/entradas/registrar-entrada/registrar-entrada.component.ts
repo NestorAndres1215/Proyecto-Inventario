@@ -1,36 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ALERT_MESSAGES, DetalleEntrada, Producto, Usuario } from 'src/app/core/models/entrada';
 import { EntradaService } from 'src/app/core/services/entrada.service';
 import { LoginService } from 'src/app/core/services/login.service';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import Swal from 'sweetalert2';
 
-// Mensajes constantes
-const ALERT_MESSAGES = {
-  fillFields: 'Complete todos los campos antes de agregar.',
-  noRecords: 'Agregue al menos un registro antes de enviar.',
-  sendSuccess: 'La entrada se ha enviado correctamente.',
-  sendError: 'Hubo un problema al enviar la entrada.',
-};
 
-interface Producto {
-  productoId: number;
-  nombre?: string;
-}
-
-interface Usuario {
-  id: number;
-  nombre?: string;
-}
-
-interface DetalleEntrada {
-  producto: { productoId: number };
-  descripcion: string;
-  cantidad: number;
-  usuario: { id: number };
-  entrada: { fechaEntrada: string };
-}
 
 @Component({
   selector: 'app-registrar-entrada',
@@ -50,7 +27,7 @@ export class RegistrarEntradaComponent implements OnInit {
     private readonly loginService: LoginService,
     private readonly entradaService: EntradaService,
     private readonly router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -68,7 +45,7 @@ export class RegistrarEntradaComponent implements OnInit {
   }
 
   private obtenerProductos(): void {
-    this.productoService.listarProductoActivadas().subscribe({
+    this.productoService.listarProductosActivos().subscribe({
       next: (data: Producto[]) => (this.producto = data),
       error: (err) => console.error('Error al obtener productos:', err),
     });
@@ -76,7 +53,7 @@ export class RegistrarEntradaComponent implements OnInit {
 
   private obtenerUsuario(): void {
     this.actualizarUsuario();
-    this.loginService.loginStatusSubjec.asObservable().subscribe(() => {
+    this.loginService.loginStatusSubject.asObservable().subscribe(() => {
       this.actualizarUsuario();
     });
   }

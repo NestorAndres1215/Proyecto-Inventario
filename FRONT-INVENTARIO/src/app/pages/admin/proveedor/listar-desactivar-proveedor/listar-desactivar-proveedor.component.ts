@@ -21,7 +21,7 @@ export class ListarDesactivarProveedorComponent implements OnInit {
     this.obtenerMarcasDesactivadas();
   }
   obtenerMarcasDesactivadas() {
-    this.proveedorService.listarProveedorDesactivadas().subscribe(
+    this.proveedorService.listarProveedoresDesactivados().subscribe(
       (marcas: any) => {
         this.proveedores = marcas;
       },
@@ -51,7 +51,7 @@ export class ListarDesactivarProveedorComponent implements OnInit {
   restaurarProveedores() {
     this.nombre = ''; // Restablecer el valor del nombre a vacío
     this.ruc = '';
-    this.proveedorService.listarProveedorActivadas().subscribe(
+    this.proveedorService.listarProveedoresActivos().subscribe(
       (proveedores: any) => {
         this.proveedores = proveedores;
       },

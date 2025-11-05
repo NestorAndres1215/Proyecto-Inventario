@@ -41,7 +41,7 @@ export class RegistrarSalidasComponent implements OnInit {
   }
 
   obtenerProducto() {
-    this.productoService.listarProductoActivadas().subscribe({
+    this.productoService.listarProductosActivos().subscribe({
       next: (data: any) => this.producto = data,
       error: (err) => console.error(err)
     });
@@ -50,7 +50,7 @@ export class RegistrarSalidasComponent implements OnInit {
   obtenerUsuario() {
     this.isLoggedIn = this.login.isLoggedIn();
     this.user = this.login.getUser();
-    this.login.loginStatusSubjec.asObservable().subscribe(() => {
+    this.login.loginStatusSubject.asObservable().subscribe(() => {
       this.isLoggedIn = this.login.isLoggedIn();
       this.user = this.login.getUser();
     });
@@ -80,7 +80,7 @@ export class RegistrarSalidasComponent implements OnInit {
       return;
     }
 
-    this.salidaService.crearEntradaConDetalles(this.listaDetalleSalida).subscribe({
+    this.salidaService.crearSalidaConDetalles(this.listaDetalleSalida).subscribe({
       next: () => {
         Swal.fire('Éxito', 'La salida se ha enviado correctamente', 'success');
         this.listaDetalleSalida = [];

@@ -26,17 +26,20 @@ export class DetalleSalidasComponent implements OnInit {
   
   
   }
-  obtenerSalidaId(detalleSalidaId:number):void{
-    this.salidaService.obtenerSalidaPorId(detalleSalidaId).subscribe(
-      (data)=>{
-        this.detalleSalida=data;
-        console.log(this.detalleSalida)
-      },
-      (error) => {
-        console.log(error);
-      }
-    )
+obtenerSalidaId(detalleSalidaId: number): void {
+  this.salidaService.obtenerSalidaPorId(detalleSalidaId).subscribe({
+    next: (data: any) => {
+      this.detalleSalida = data;
+      console.log("Detalle de salida obtenido:", this.detalleSalida);
+    },
+    error: (error: any) => {
+      console.error("Error al obtener el detalle de salida:", error);
+    },
+    complete: () => {
+      console.log("Consulta de detalle de salida completada.");
+    }
+  });
+}
 
-  }
 
 }

@@ -21,22 +21,26 @@ export class ListarInventarioComponent implements OnInit {
   productoId: string = '';
   constructor(private http: HttpClient,
     private productoService: ProductoService,
-    private reporteSalida:ReportesService,
+    private reporteSalida: ReportesService,
     private router: Router) { }
   ngOnInit(): void {
     this.obtenerProducto();
   }
 
-  obtenerProducto() {
-    this.productoService.listarProductoActivadas().subscribe(
-      (productos: any) => {
+  obtenerProducto(): void {
+    this.productoService.listarProductosActivos().subscribe({
+      next: (productos: any[]) => {
         this.productos = productos;
       },
-      (error: any) => {
-        console.log("Error al obtener las productos: ", error);
+      error: (error: any) => {
+        console.error("Error al obtener los productos:", error);
+      },
+      complete: () => {
+        console.log("Productos cargados correctamente.");
       }
-    );
+    });
   }
+
   pageSize = 4; // Tamaño de página (número de elementos por página)
   pageIndex = 0; // 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -47,36 +51,35 @@ export class ListarInventarioComponent implements OnInit {
 
 
   desactivarProducto(productoId: any): void {
-    this.productoService.desactivarProducto(productoId).subscribe(
-      (respuesta: any) => {
-        // Desactivación exitosa
+    this.productoService.desactivarProducto(productoId).subscribe({
+      next: (respuesta: any) => {
         Swal.fire({
           icon: 'success',
           title: 'Producto desactivado',
-          text: respuesta.mensaje
+          text: respuesta?.mensaje || 'El producto fue desactivado correctamente.'
         });
 
-        // Actualizar la lista de categorías activadas
-        this.obtenerProducto();
+        this.obtenerProducto(); // Volver a cargar la lista
       },
-      (error: any) => {
-        // Error al desactivar la categoría
+      error: (error: any) => {
         Swal.fire({
           icon: 'error',
-          title: 'Error al desactivar la producto',
-          text: error.error.mensaje
+          title: 'Error al desactivar el producto',
+          text: error?.error?.mensaje || 'Ocurrió un error inesperado.'
         });
+      },
+      complete: () => {
+        console.log("Petición para desactivar producto finalizada.");
       }
-    );
+    });
   }
 
 
-  
   buscarPorNombre() {
     try {
       if (this.nombre && this.productos) {
         this.productos = this.productos.filter((proveedor: any) =>
-          proveedor.nombre.toLowerCase().includes(this.nombre.toLowerCase()) 
+          proveedor.nombre.toLowerCase().includes(this.nombre.toLowerCase())
         );
       } else {
         this.restaurarProveedores();
@@ -88,18 +91,22 @@ export class ListarInventarioComponent implements OnInit {
     }
   }
 
-  restaurarProveedores() {
-    this.nombre = ''; // Restablecer el valor del nombre a vacío
+  restaurarProveedores(): void {
+    this.nombre = ''; // Limpiar filtro / búsqueda
 
-    this.productoService.listarProductoActivadas().subscribe(
-      (proveedores: any) => {
-        this.productos = proveedores;
+    this.productoService.listarProductosActivos().subscribe({
+      next: (productos: any[]) => {
+        this.productos = productos;
       },
-      (error: any) => {
-        console.log("Error al obtener las categorías: ", error);
+      error: (error: any) => {
+        console.error("Error al obtener los productos:", error);
+      },
+      complete: () => {
+        console.log("Listado de productos restaurado correctamente.");
       }
-    );
+    });
   }
+
 
   descargarPDF() {
     this.reporteSalida.descargarProducto().subscribe((data: Blob) => {

@@ -2,21 +2,19 @@
   <div class="container">
     <h1><i class="fas fa-box"></i> Agregar Nuevo Producto</h1>
     <hr>
-    <form class="form-grid" (submit)="formSubmit()" enctype="multipart/form-data">
+    <form class="form-grid" [formGroup]="productoForm" (ngSubmit)="formSubmit()">
 
       <div class="form-row">
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-box"></i> Nombre Producto</mat-label>
-            <input required autofocus type="text" name="nombre" matInput
-                   placeholder="Digite el nombre del producto" [(ngModel)]="producto.nombre">
+            <input type="text" matInput placeholder="Digite el nombre del producto" formControlName="nombre">
           </mat-form-field>
         </div>
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-file-alt"></i> Descripción</mat-label>
-            <input required type="text" name="descripcion" matInput
-                   placeholder="Digite la descripción" [(ngModel)]="producto.descripcion">
+            <input type="text" matInput placeholder="Digite la descripción" formControlName="descripcion">
           </mat-form-field>
         </div>
       </div>
@@ -25,17 +23,13 @@
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-dollar-sign"></i> Precio</mat-label>
-            <input required type="number" name="precio" matInput
-                   placeholder="Digite el precio" [(ngModel)]="producto.precio"
-                   (input)="validarNumeroPositivo($event)">
+            <input type="number" matInput placeholder="Digite el precio" formControlName="precio">
           </mat-form-field>
         </div>
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-sort-numeric-up"></i> Stock</mat-label>
-            <input required type="number" name="stock" matInput
-                   placeholder="Digite el stock" [(ngModel)]="producto.stock"
-                   (input)="validarNumeroPositivo($event)">
+            <input type="number" matInput placeholder="Digite el stock" formControlName="stock">
           </mat-form-field>
         </div>
       </div>
@@ -44,14 +38,13 @@
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-map-marker-alt"></i> Ubicación</mat-label>
-            <input required type="text" name="ubicacion" matInput
-                   placeholder="Digite la ubicación" [(ngModel)]="producto.ubicacion">
+            <input type="text" matInput placeholder="Digite la ubicación" formControlName="ubicacion">
           </mat-form-field>
         </div>
         <div class="form-column">
           <mat-form-field appearance="outline">
             <mat-label><i class="fas fa-truck"></i> Proveedor</mat-label>
-            <mat-select name="proveedor" [(ngModel)]="producto.proveedor.proveedorId">
+            <mat-select formControlName="proveedorId">
               <mat-option *ngFor="let proveedor of proveedores" [value]="proveedor.proveedorId">
                 {{ proveedor.nombre }}
               </mat-option>

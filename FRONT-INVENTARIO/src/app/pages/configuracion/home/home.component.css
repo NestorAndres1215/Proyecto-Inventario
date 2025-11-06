@@ -1,12 +1,4 @@
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-}
 .content {
   text-align: center;
   background: rgba(255, 255, 255, 0.95);
@@ -65,33 +57,3 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-
-
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 2.5rem;
-  }
-
-  .welcome-message {
-    font-size: 1.2rem;
-  }
-
-  .get-started-btn {
-    padding: 12px 25px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .content {
-    padding: 20px;
-  }
-
-  .welcome-title {
-    font-size: 2rem;
-  }
-
-  .welcome-message {
-    font-size: 1rem;
-  }
-}

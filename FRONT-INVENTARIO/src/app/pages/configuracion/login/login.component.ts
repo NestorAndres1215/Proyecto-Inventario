@@ -40,9 +40,9 @@ export class LoginComponent implements OnInit {
     private readonly snack: MatSnackBar,
     private readonly loginService: LoginService,
     private readonly router: Router
-  ) {}
+  ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   formSubmit(): void {
     const { login, password } = this.loginData;
@@ -72,7 +72,8 @@ export class LoginComponent implements OnInit {
     this.loginService.getCurrentUser().subscribe({
       next: (user: any) => {
         this.loginService.setUser(user);
-        this.navigateByRole(this.loginService.getUserRole());
+        const rol = user.rol.nombre
+        this.navigateByRole(rol);
       },
       error: () => this.loginService.logout(),
     });

@@ -13,6 +13,7 @@ export class LoginService {
   private readonly TOKEN_KEY = 'token';
   private readonly USER_KEY = 'user';
   public loginStatusSubject = new Subject<boolean>();
+  loginStatusSubjec: any;
 
   constructor(private http: HttpClient) {}
 

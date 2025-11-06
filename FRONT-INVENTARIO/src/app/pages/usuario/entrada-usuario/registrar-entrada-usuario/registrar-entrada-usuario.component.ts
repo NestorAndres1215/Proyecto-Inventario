@@ -103,26 +103,32 @@ export class RegistrarEntradaUsuarioComponent implements OnInit {
 
 
 
-  obtenerProducto() {
-    this.productoService.listarProductoActivadas().subscribe(
-      (producto: any) => {
-        this.producto = producto;
-      },
-      (error: any) => {
-        console.log("Error al obtener las categorías: ", error);
-      }
-    );
-  }
-  obtenerUsuario() {
-    this.isLoggedIn = this.login.isLoggedIn();
-    this.user = this.login.getUser();
-    this.login.loginStatusSubjec.asObservable().subscribe(
-      data => {
-        this.isLoggedIn = this.login.isLoggedIn();
-        this.user = this.login.getUser();
-      }
-    )
-  }
+obtenerProducto() {
+  this.productoService.listarProductosActivos().subscribe({
+    next: (productos: any[]) => {
+      this.producto = productos;
+    },
+    error: (err: any) => {
+      console.error("Error al obtener los productos:", err);
+    }
+  });
+}
+
+obtenerUsuario() {
+  this.isLoggedIn = this.login.isLoggedIn();
+  this.user = this.login.getUser();
+
+  this.login.loginStatusSubject.asObservable().subscribe({
+    next: () => {
+      this.isLoggedIn = this.login.isLoggedIn();
+      this.user = this.login.getUser();
+    },
+    error: (err) => {
+      console.error("Error al obtener el estado de sesión:", err);
+    }
+  });
+}
+
 
   agregarProducto() {
     this.listaDetalleEntrada.push({ ...this.detalleEntrada });
@@ -146,21 +152,23 @@ export class RegistrarEntradaUsuarioComponent implements OnInit {
 
   }
  
-  guardarValor(event: any) {
-    const inputElement = event.target as HTMLInputElement;
-    let inputValue = inputElement.value;
+guardarValor(event: any) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
 
-    // Eliminar caracteres no numéricos, excepto el signo '-' si es el primer carácter
-    inputValue = inputValue.replace(/[^0-9-]/g, '');
-    // Si el valor comienza con "-", permitirlo, de lo contrario, eliminarlo
-    if (inputValue.charAt(0) === '-' && inputValue.length > 1) {
-        inputValue = '-' + inputValue.replace('-', '');
-    } else {
-        inputValue = inputValue.replace('-', '');
-    }
-    // Actualizar el valor del campo de entrada con los caracteres filtrados
-    inputElement.value = inputValue;
+  // Permitir solo números y el signo "-"
+  value = value.replace(/[^0-9-]/g, '');
+
+  // Si el valor contiene más de un "-", eliminar extras
+  const hasDash = value.startsWith('-');
+  value = value.replace(/-/g, '');
+  if (hasDash) {
+    value = '-' + value;
   }
-  
+
+  // Actualizar el campo
+  input.value = value;
+}
+
 
 }

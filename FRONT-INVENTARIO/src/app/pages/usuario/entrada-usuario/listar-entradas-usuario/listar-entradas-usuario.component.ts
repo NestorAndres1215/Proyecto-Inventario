@@ -17,24 +17,25 @@ export class ListarEntradasUsuarioComponent implements OnInit {
   constructor(private http: HttpClient,
     private entradaService: EntradaService,
     private router: Router,
-    private reporteSalida:ReportesService
-   
+    private reporteSalida: ReportesService
+
   ) { }
+  
   ngOnInit(): void {
     this.obtenerEntradas();
   }
 
-  obtenerEntradas() {
-    console.log("llego pppipippi")
-    this.entradaService.listarEntradas().subscribe(
-      (detalleEntrada: any) => {
+  obtenerEntradas(): void {
+    this.entradaService.listarEntradas().subscribe({
+      next: (detalleEntrada: any[]) => {
         this.detalleEntrada = detalleEntrada;
       },
-      (error: any) => {
-        console.log("Error al obtener las marcas: ", error);
+      error: (error) => {
+        console.error("Error al obtener las entradas:", error);
       }
-    );
+    });
   }
+
   descargarPDF() {
     this.reporteSalida.descargarEntrada().subscribe((data: Blob) => {
       const blob = new Blob([data], { type: 'application/pdf' });

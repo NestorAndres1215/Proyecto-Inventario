@@ -35,7 +35,7 @@ export class GuardarInventarioComponent implements OnInit {
     private readonly productoService: ProductoService,
     private readonly proveedorService: ProveedorService,
     private readonly router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -53,28 +53,28 @@ export class GuardarInventarioComponent implements OnInit {
     });
   }
 
- formSubmit(): void {
-  if (this.productoForm.invalid) {
-    Swal.fire(ALERT_MESSAGES.missingFields);
-    return;
+  formSubmit(): void {
+    if (this.productoForm.invalid) {
+      Swal.fire(ALERT_MESSAGES.missingFields);
+      return;
+    }
+
+    const producto: Producto = this.productoForm.value;
+
+    this.productoService.agregarProducto(producto)
+      .subscribe({
+        next: () => {
+          Swal.fire(ALERT_MESSAGES.saveSuccess).then(() => {
+            this.productoForm.reset();
+            this.router.navigate(['/admin/producto']);
+          });
+        },
+        error: (err) => {
+          console.error('Error al guardar producto:', err);
+          Swal.fire(ALERT_MESSAGES.saveError);
+        }
+      });
   }
-
-  const producto: Producto = this.productoForm.value;
-
-  this.productoService.agregarProducto(producto)
-    .subscribe({
-      next: () => {
-        Swal.fire(ALERT_MESSAGES.saveSuccess).then(() => {
-          this.productoForm.reset();
-          this.router.navigate(['/admin/producto']);
-        });
-      },
-      error: (err) => {
-        console.error('Error al guardar producto:', err);
-        Swal.fire(ALERT_MESSAGES.saveError);
-      }
-    });
-}
 
 
   private obtenerProveedores(): void {

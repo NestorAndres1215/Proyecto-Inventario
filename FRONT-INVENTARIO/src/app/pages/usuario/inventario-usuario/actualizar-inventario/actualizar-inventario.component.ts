@@ -1,92 +1,133 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import Swal, { SweetAlertIcon } from 'sweetalert2';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
-import Swal from 'sweetalert2';
+import { Producto } from 'src/app/core/models/producto';
+
+interface Proveedor {
+  proveedorId: number;
+  nombre?: string;
+}
+
+
+interface AlertMessage {
+  icon: SweetAlertIcon;
+  title: string;
+  text: string;
+}
+
+const ALERT_MESSAGES: {
+  missingFields: AlertMessage;
+  updateSuccess: AlertMessage;
+  updateError: AlertMessage;
+} = {
+  missingFields: {
+    icon: 'error',
+    title: 'Faltan datos',
+    text: 'Complete todos los campos correctamente antes de actualizar.'
+  },
+  updateSuccess: {
+    icon: 'success',
+    title: 'Producto actualizado',
+    text: 'El producto se ha actualizado correctamente.'
+  },
+  updateError: {
+    icon: 'error',
+    title: 'Error al actualizar',
+    text: 'Ocurrió un error al actualizar el producto.'
+  }
+};
+
+
+// Mensajes constantes
+
 @Component({
-  selector: 'app-actualizar-inventario',
-  templateUrl: './actualizar-inventario.component.html',
-  styleUrls: ['./actualizar-inventario.component.css']
+  selector: 'app-actualizar-producto',
+  templateUrl: './actualizar-producto.component.html',
+  styleUrls: ['./actualizar-producto.component.css']
 })
 export class ActualizarInventarioComponent implements OnInit {
 
-  producto: any;
-  productoId: any = 0;
-  proveedores: any[]=[];
-  proveedorId: any = 0;
+  productoForm!: FormGroup;
+  productoId: number = 0;
+  proveedores: Proveedor[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private productoService: ProductoService,
-    private proveedorService: ProveedorService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly productoService: ProductoService,
+    private readonly proveedorService: ProveedorService,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {
-    this.productoId = this.route.snapshot.params['productoId'];
-    
-    // Obtén el producto y los proveedores
-    this.productoService.obtenerProductoPorId(this.productoId).subscribe(
-      (data) => {
-        this.producto = data;
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+    this.productoId = Number(this.route.snapshot.paramMap.get('productoId'));
+    this.inicializarFormulario();
+    this.cargarProveedores();
+    this.cargarProducto();
+  }
 
-    this.proveedorService.listarProveedorActivadas().subscribe(
-      (data: any) => {
-        this.proveedores = data; // Asigna los datos al arreglo proveedores
-        console.log(this.proveedores); // Verifica si los datos se han asignado correctamente
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+  private inicializarFormulario(): void {
+    this.productoForm = this.fb.group({
+      nombre: ['', Validators.required],
+      descripcion: ['', Validators.required],
+      precio: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      stock: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      ubicacion: ['', Validators.required],
+      proveedorId: ['', Validators.required]
+    });
   }
-  
-  
-  
-  
-  
+
+  private cargarProveedores(): void {
+    this.proveedorService.listarProveedoresActivos().subscribe({
+      next: (data: Proveedor[]) => this.proveedores = data,
+      error: (err) => console.error('Error al cargar proveedores:', err)
+    });
+  }
+
+  private cargarProducto(): void {
+    this.productoService.obtenerProductoPorId(this.productoId).subscribe({
+      next: (producto: Producto) => {
+        this.productoForm.patchValue({
+          nombre: producto.nombre,
+          descripcion: producto.descripcion,
+          precio: producto.precio,
+          stock: producto.stock,
+          ubicacion: producto.ubicacion,
+          proveedorId: producto.proveedorId
+        });
+      },
+      error: (err) => console.error('Error al cargar producto:', err)
+    });
+  }
+
   actualizarProducto(): void {
-    // Verificar si el proveedorId y proveedor son válidos
-    if (!this.productoId || !this.producto) {
-      console.error('ProveedorId o proveedor son inválidos.');
-      return;
-    }
-  
-    console.log('ProveedorId:', this.productoId);
-    console.log('Proveedor:', this.producto);
-  
-    // Llamar al servicio para actualizar el proveedor
-    this.productoService.actualizarProducto(this.productoId, this.producto).subscribe(
-      (respuesta: any) => {
-        // El proveedor se actualizó correctamente
-        console.log('Proveedor actualizado:', respuesta);
-        Swal.fire({
-          icon: 'success',
-          title: 'Proveedor actualizado',
-          text: 'El proveedor se ha actualizado correctamente.'
-        }).then(() => {
-          // Redireccionar a la página de proveedores
-          this.router.navigate(['/user-dashboard/inventario']);
-        });
-      },
-      (error: any) => {
-        // Error al actualizar el proveedor
-        console.error('Error al actualizar el proveedor:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al actualizar el proveedor',
-          text: 'Ocurrió un error al actualizar el proveedor. Por favor, inténtalo de nuevo.'
-        });
-      }
-    );
+  if (this.productoForm.invalid) {
+    Swal.fire(ALERT_MESSAGES.missingFields);
+    return;
   }
-  
+
+  const producto: Producto = this.productoForm.value; // Incluye id
+
+  this.productoService.actualizarProducto(producto)
+    .subscribe({
+      next: () => {
+        Swal.fire(ALERT_MESSAGES.updateSuccess)
+          .then(() => this.router.navigate(['/admin/producto']));
+      },
+      error: (err) => {
+        console.error('Error al actualizar producto:', err);
+        Swal.fire(ALERT_MESSAGES.updateError);
+      }
+    });
+}
+
+
+  validarNumeroPositivo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '');
+  }
 
 }

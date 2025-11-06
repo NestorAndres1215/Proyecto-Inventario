@@ -12,32 +12,31 @@ export class ActualizarUsuarioUsuarioComponent implements OnInit {
 
   user: any = null;
   id: any = null; // Agrega una propiedad para almacenar el ID
-  
-  constructor(    private router: Router,private loginService: LoginService, private usuarioService: UsuarioService) { }
-  
+
+  constructor(private router: Router, private loginService: LoginService, private usuarioService: UsuarioService) { }
+
   ngOnInit(): void {
     this.user = this.loginService.getUser();
     this.id = this.user.id; // Asigna el ID del usuario a la propiedad "id"
   }
-  
+
   actualizarUsuario(): void {
     if (!this.id || !this.user) {
       console.error('ID de usuario o datos de usuario no válidos.');
       return;
     }
-  
-    this.usuarioService.actualizarUsuario(this.id, this.user).subscribe(
-      (respuesta: any) => {
-        // Mostrar notificación de éxito con swal
+
+    this.usuarioService.actualizarUsuario(this.id, this.user).subscribe({
+      next: (respuesta: any) => {
         swal.fire('¡Éxito!', 'Usuario actualizado correctamente', 'success');
         console.log('Usuario actualizado:', respuesta);
         this.router.navigate(['/user-dashboard/configuracion']);
       },
-      (error: any) => {
-        // Mostrar notificación de error con swal
+      error: (error: any) => {
         swal.fire('Error', 'No se pudo actualizar el usuario', 'error');
         console.error('Error al actualizar el usuario:', error);
       }
-    );
+    });
   }
+
 }

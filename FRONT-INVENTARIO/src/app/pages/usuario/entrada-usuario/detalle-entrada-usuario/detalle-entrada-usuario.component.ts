@@ -12,30 +12,30 @@ export class DetalleEntradaUsuarioComponent implements OnInit {
   detalleEntrada: any;
   detalleEntradaId: any = 0;
   constructor(
-    private entradaService:EntradaService,
-    private router:Router,
-    private route:ActivatedRoute
+    private entradaService: EntradaService,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.detalleEntradaId=this.route.snapshot.params['detalleEntradaId'];
-    console.log("llego id"+this.detalleEntradaId);
+    this.detalleEntradaId = this.route.snapshot.params['detalleEntradaId'];
+    console.log("llego id" + this.detalleEntradaId);
     console.log(this.route.snapshot.params);
     this.obtenerEntradaId(this.detalleEntradaId)
-  
-  
+
+
   }
 
-  obtenerEntradaId(detalleEntradaId:number):void{
-    this.entradaService.obtenerEntradaPorId(detalleEntradaId).subscribe(
-      (data)=>{
-        this.detalleEntrada=data;
-        console.log(this.detalleEntrada)
+  obtenerEntradaId(detalleEntradaId: number): void {
+    this.entradaService.obtenerEntradaPorId(detalleEntradaId).subscribe({
+      next: (data: any) => {
+        this.detalleEntrada = data;
+        console.log("Detalle de la entrada:", this.detalleEntrada);
       },
-      (error) => {
-        console.log(error);
+      error: (error: any) => {
+        console.error("Error al obtener la entrada por ID:", error);
       }
-    )
-
+    });
   }
+
 }

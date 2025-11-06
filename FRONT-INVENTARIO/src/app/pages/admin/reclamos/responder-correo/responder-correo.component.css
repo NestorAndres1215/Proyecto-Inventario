@@ -67,12 +67,6 @@
   .mat-form-field { font-size: 0.8rem; }
   .btn-action { padding: 8px 10px; font-size: 0.8rem; }
 }
-/* Mantener todo el CSS previo del formulario de producto */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 body {
   min-height: 70vh;

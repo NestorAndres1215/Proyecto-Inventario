@@ -1,20 +1,4 @@
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      min-height: 100vh;
-
-      font-family: 'Poppins', sans-serif;
-      color: #333;
-      padding: 20px;
-    }
-
-
-
-    h1 {
+ h1 {
       font-size: 2.5rem;
       color: #2a5298;
       text-align: center;

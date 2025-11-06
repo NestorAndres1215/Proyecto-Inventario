@@ -1,267 +1,251 @@
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+h1 {
+  font-size: 2.5rem;
+  color: #2a5298;
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
-    body {
+h1 i {
+  color: #ff6f61;
+  animation: pulse 2s infinite;
+}
 
+hr {
+  border: 0;
+  height: 2px;
+  background: #ff6f61;
+  margin: 20px 0;
+}
 
-      font-family: 'Poppins', sans-serif;
-      color: #333;
-      padding: 20px;
-    }
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  justify-content: flex-start;
+}
 
+.btn-action {
+  flex: 1;
+  min-width: 200px;
+  max-width: 250px;
+  padding: 12px 20px;
+  background: #ff6f61;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
 
+.btn-action i {
+  font-size: 1.1rem;
+}
 
-    h1 {
-      font-size: 2.5rem;
-      color: #2a5298;
-      text-align: center;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+.btn-action:hover {
+  background: #fff;
+  color: #ff6f61;
+  border: 2px solid #ff6f61;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
 
-    h1 i {
-      color: #ff6f61;
-      animation: pulse 2s infinite;
-    }
+.search-container {
+  margin-bottom: 20px;
+  max-width: 400px;
+}
 
-    hr {
-      border: 0;
-      height: 2px;
-      background: #ff6f61;
-      margin: 20px 0;
-    }
+.mat-form-field {
+  width: 100%;
+  font-size: 1rem;
+}
 
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
-      justify-content: flex-start;
-    }
+.mat-form-field input {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 10px;
+}
 
-    .btn-action {
-      flex: 1;
-      min-width: 200px;
-      max-width: 250px;
-      padding: 12px 20px;
-      background: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    }
+.mat-form-field .mat-label {
+  color: #2a5298;
+  font-weight: 600;
+}
 
-    .btn-action i {
-      font-size: 1.1rem;
-    }
+.mat-form-field mat-icon {
+  color: #2a5298;
+  margin-right: 10px;
+}
 
-    .btn-action:hover {
-      background: #fff;
-      color: #ff6f61;
-      border: 2px solid #ff6f61;
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
 
-    .search-container {
-      margin-bottom: 20px;
-      max-width: 400px;
-    }
+.table thead {
+  background: #2a5298;
+}
 
-    .mat-form-field {
-      width: 100%;
-      font-size: 1rem;
-    }
+.table th {
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
 
-    .mat-form-field input {
-      background: #f5f5f5;
-      border-radius: 10px;
-      padding: 10px;
-    }
+.table td {
+  padding: 15px;
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
 
-    .mat-form-field .mat-label {
-      color: #2a5298;
-      font-weight: 600;
-    }
+.table tbody tr:hover {
+  background: #f5f5f5;
+  transition: background 0.3s ease;
+}
 
-    .mat-form-field mat-icon {
-      color: #2a5298;
-      margin-right: 10px;
-    }
+.btn-table {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
 
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+.btn-table i {
+  font-size: 1rem;
+}
 
-    .table thead {
-      background: #2a5298;
-    }
+.btn-details {
+  background: #ffb300;
+  color: #fff;
+}
 
-    .table th {
-      padding: 15px;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-align: center;
-    }
+.btn-details:hover {
+  background: #fff;
+  color: #ffb300;
+  border: 2px solid #ffb300;
+}
 
-    .table td {
-      padding: 15px;
-      font-size: 1rem;
-      color: #333;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
+.btn-edit {
+  background: #28a745;
+  color: #fff;
+}
 
-    .table tbody tr:hover {
-      background: #f5f5f5;
-      transition: background 0.3s ease;
-    }
+.btn-edit:hover {
+  background: #fff;
+  color: #28a745;
+  border: 2px solid #28a745;
+}
 
-    .btn-table {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    }
+.btn-delete {
+  background: #dc3545;
+  color: #fff;
+}
 
-    .btn-table i {
-      font-size: 1rem;
-    }
+.btn-delete:hover {
+  background: #fff;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+}
 
-    .btn-details {
-      background: #ffb300;
-      color: #fff;
-    }
-
-    .btn-details:hover {
-      background: #fff;
-      color: #ffb300;
-      border: 2px solid #ffb300;
-    }
-
-    .btn-edit {
-      background: #28a745;
-      color: #fff;
-    }
-
-    .btn-edit:hover {
-      background: #fff;
-      color: #28a745;
-      border: 2px solid #28a745;
-    }
-
-    .btn-delete {
-      background: #dc3545;
-      color: #fff;
-    }
-
-    .btn-delete:hover {
-      background: #fff;
-      color: #dc3545;
-      border: 2px solid #dc3545;
-    }
-
-    .mat-paginator {
-      background: transparent;
-      color: #2a5298;
-      font-size: 1rem;
-      margin-top: 20px;
-    }
+.mat-paginator {
+  background: transparent;
+  color: #2a5298;
+  font-size: 1rem;
+  margin-top: 20px;
+}
 
 
 
-    @media (max-width: 768px) {
-      .container {
-        padding: 20px;
-      }
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
 
-      h1 {
-        font-size: 2rem;
-      }
+  h1 {
+    font-size: 2rem;
+  }
 
-      .btn-action {
-        min-width: 150px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-      }
+  .btn-action {
+    min-width: 150px;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
 
-      .table th,
-      .table td {
-        font-size: 0.9rem;
-        padding: 12px;
-      }
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+    padding: 12px;
+  }
 
-      .btn-table {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
+  .btn-table {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
 
-      .search-container {
-        max-width: 100%;
-      }
-    }
+  .search-container {
+    max-width: 100%;
+  }
+}
 
-    @media (max-width: 480px) {
-      .container {
-        padding: 15px;
-      }
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
 
-      h1 {
-        font-size: 1.8rem;
-      }
+  h1 {
+    font-size: 1.8rem;
+  }
 
-      .button-container {
-        flex-direction: column;
-      }
+  .button-container {
+    flex-direction: column;
+  }
 
-      .btn-action {
-        min-width: 100%;
-        padding: 8px 10px;
-        font-size: 0.8rem;
-      }
+  .btn-action {
+    min-width: 100%;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
 
-      .table th,
-      .table td {
-        font-size: 0.8rem;
-        padding: 10px;
-      }
+  .table th,
+  .table td {
+    font-size: 0.8rem;
+    padding: 10px;
+  }
 
-      .btn-table {
-        padding: 5px 8px;
-        font-size: 0.7rem;
-      }
+  .btn-table {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
 
-      .table {
-        display: block;
-        overflow-x: auto;
-      }
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
 
-      .mat-paginator {
-        font-size: 0.9rem;
-      }
-    }
+  .mat-paginator {
+    font-size: 0.9rem;
+  }
+}

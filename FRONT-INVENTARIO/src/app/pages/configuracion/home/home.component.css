@@ -1,13 +1,4 @@
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  font-family: "Poppins", sans-serif;
-  overflow: hidden;
-}
 .container {
   display: flex;
   justify-content: center;

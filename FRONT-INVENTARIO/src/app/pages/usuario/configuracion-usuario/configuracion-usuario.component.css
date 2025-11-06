@@ -1,13 +1,5 @@
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-
-    .container {
+  .container {
       max-width: 900px;
-      margin: 0 auto;
       padding: 30px;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
@@ -106,22 +98,7 @@
       border-radius: 5px;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
 
     @media (max-width: 768px) {
       .container {

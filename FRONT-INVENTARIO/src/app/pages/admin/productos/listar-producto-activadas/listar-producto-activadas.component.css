@@ -193,19 +193,6 @@
       margin-top: 20px;
     }
 
-    ::-webkit-scrollbar {
-      width: 7px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #ff6f61;
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 5px;
-    }
 
  
 

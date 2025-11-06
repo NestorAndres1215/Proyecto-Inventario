@@ -1,8 +1,3 @@
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
 
     body {
       font-family: 'Poppins', sans-serif;
@@ -170,20 +165,6 @@
       overflow-y: auto;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 7px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #ff6f61;
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 5px;
-    }
 
 
 

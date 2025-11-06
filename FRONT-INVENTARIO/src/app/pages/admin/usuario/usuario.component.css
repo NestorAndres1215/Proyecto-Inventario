@@ -84,19 +84,7 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    ::-webkit-scrollbar {
-      width: 7px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #ff6f61;
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 5px;
-    }
+ 
 
 
 

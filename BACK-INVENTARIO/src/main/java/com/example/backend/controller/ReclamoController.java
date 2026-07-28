@@ -5,6 +5,7 @@ import java.util.List;
 import com.example.backend.dto.request.ReclamosRequest;
 import com.example.backend.service.ReclamoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.entity.Reclamos;
 
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/reclamo")
 @Tag(name = "Reclamo")
 @RequiredArgsConstructor
 public class ReclamoController {
-
 
     private final ReclamoService reclamoService;
 

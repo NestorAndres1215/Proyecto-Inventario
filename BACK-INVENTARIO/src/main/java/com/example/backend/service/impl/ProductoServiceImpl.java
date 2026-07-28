@@ -38,8 +38,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public Producto obtenerProductoPorId(Long id) {
-        return productoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PRODUCTO_NO_ENCONTRADO));
+        return obtenerProducto(id);
     }
 
     @Override
@@ -52,57 +51,59 @@ public class ProductoServiceImpl implements ProductoService {
         return cambiarEstadoProducto(id, false);
     }
 
-
-    private Producto cambiarEstadoProducto(Long id, boolean activo) {
-        return productoRepository.findById(id)
-                .map(producto -> {
-                    producto.setEstado(activo);
-                    return productoRepository.save(producto);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException((NotFoundMessages.PRODUCTO_NO_ENCONTRADO)));
+    private Producto cambiarEstadoProducto(Long id, boolean estado) {
+        Producto producto = obtenerProducto(id);
+        producto.setEstado(estado);
+        return productoRepository.save(producto);
     }
 
     @Override
-    public Producto agregarProducto(ProductoRequest productoDTO) {
+    public Producto agregarProducto(ProductoRequest dto) {
 
-        Proveedor proveedor = proveedorRepository.findById(productoDTO.getProveedorId())
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
+        Proveedor proveedor = obtenerProveedor(dto.getProveedorId());
 
         Producto producto = Producto.builder()
-                .nombre(productoDTO.getNombre())
-                .precio(productoDTO.getPrecio())
-                .descripcion(productoDTO.getDescripcion())
-                .ubicacion(productoDTO.getUbicacion())
-                .stock(productoDTO.getStock())
+                .nombre(dto.getNombre())
+                .precio(dto.getPrecio())
+                .descripcion(dto.getDescripcion())
+                .ubicacion(dto.getUbicacion())
+                .stock(dto.getStock())
                 .estado(true)
-                .proveedor(proveedor)
                 .fechaRegistro(LocalDate.now())
+                .proveedor(proveedor)
                 .build();
 
         return productoRepository.save(producto);
     }
 
-
     @Override
-    public Producto actualizarProducto(ProductoRequest productoDTO) {
-
-        Producto producto = productoRepository.findById(productoDTO.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PRODUCTO_NO_ENCONTRADO));
-
-        Proveedor proveedor = proveedorRepository.findById(productoDTO.getProveedorId())
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
-
-        producto.setNombre(productoDTO.getNombre());
-        producto.setPrecio(productoDTO.getPrecio());
-        producto.setDescripcion(productoDTO.getDescripcion());
-        producto.setUbicacion(productoDTO.getUbicacion());
-        producto.setStock(productoDTO.getStock());
-        producto.setProveedor(proveedor);
-
+    public Producto actualizarProducto(ProductoRequest dto) {
+        Producto producto = obtenerProducto(dto.getId());
+        Proveedor proveedor = obtenerProveedor(dto.getProveedorId());
+        actualizarDatosProducto(producto, dto, proveedor);
         return productoRepository.save(producto);
     }
 
+    private void actualizarDatosProducto(Producto producto, ProductoRequest dto, Proveedor proveedor) {
+        producto.setNombre(dto.getNombre());
+        producto.setPrecio(dto.getPrecio());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setUbicacion(dto.getUbicacion());
+        producto.setStock(dto.getStock());
+        producto.setProveedor(proveedor);
+    }
 
+    private Producto obtenerProducto(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.PRODUCTO_NO_ENCONTRADO));
+    }
+
+    private Proveedor obtenerProveedor(Long id) {
+        return proveedorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
+    }
 
     @Override
     public List<Producto> listarProductosPorProveedor(Long proveedorId) {
@@ -144,7 +145,6 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepository.findTopByOrderByStockAsc();
     }
 
-
     @Override
     public List<Producto> productosConStockBajo(int limite) {
         return productoRepository.findByStockLessThanEqual(limite);
@@ -154,6 +154,4 @@ public class ProductoServiceImpl implements ProductoService {
     public List<Producto> productosSinStock() {
         return productoRepository.findByStockEquals(0);
     }
-
-
 }

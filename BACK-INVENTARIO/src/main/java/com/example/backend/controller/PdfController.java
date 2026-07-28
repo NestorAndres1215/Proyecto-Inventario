@@ -30,7 +30,7 @@ public class PdfController {
     private final ProveedorServicePDF proveedorPDF;
 
     @GetMapping("/generar-productos")
-    public ResponseEntity<byte[]> generarInformePdfProdcutos() throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generarInformePdfProdcutos() throws Exception {
         byte[] pdfBytes = pdfService.generarInformePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -39,7 +39,7 @@ public class PdfController {
     }
 
     @GetMapping("/generar-salidas")
-    public ResponseEntity<byte[]> generarInformePdfSalidas() throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generarInformePdfSalidas() throws Exception {
         byte[] pdfBytes = salidasPDF.generarInformePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -48,7 +48,7 @@ public class PdfController {
     }
 
     @GetMapping("/generar-entradas")
-    public ResponseEntity<byte[]> generarInformePdfEntradas() throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generarInformePdfEntradas() throws Exception {
         byte[] pdfBytes = entradasPDF.generarInformePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -57,7 +57,7 @@ public class PdfController {
     }
 
     @GetMapping("/generar-proveedor")
-    public ResponseEntity<byte[]> generarInformePdfProveedor() throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generarInformePdfProveedor() throws Exception {
         byte[] pdfBytes = proveedorPDF.generarInformePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -75,7 +75,7 @@ public class PdfController {
     }
 
     @GetMapping("/generar-operador")
-    public ResponseEntity<byte[]> generarInformePdfOperador() throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generarInformePdfOperador() throws DocumentException {
         byte[] pdfBytes = operadorPDF.generarInformePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);

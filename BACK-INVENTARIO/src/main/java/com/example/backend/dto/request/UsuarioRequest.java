@@ -1,8 +1,7 @@
 package com.example.backend.dto.request;
 
 import lombok.*;
-
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data

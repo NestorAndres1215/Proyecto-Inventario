@@ -39,7 +39,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, String> {
 
     List<Usuario> findByRolAndEstado(Rol rol, Boolean estado);
 
-
     @Query(value = "SELECT * FROM usuario WHERE us_rol = 1 AND us_estado = 1", nativeQuery = true)
     List<Usuario> listarUsuarioAdminActivado();
 

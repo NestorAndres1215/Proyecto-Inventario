@@ -7,7 +7,10 @@ import com.example.backend.entity.Usuario;
 import java.util.List;
 
 public interface UsuarioService {
-    Usuario registrarUsuario(UsuarioRequest usuarioDTO);
+
+    Usuario registrarUsuario(UsuarioRequest dto);
+
+    Usuario actualizarUsuario(Long id, UsuarioRequest dto);
 
     Usuario eliminarUsuario(Long usuarioId);
 
@@ -15,23 +18,19 @@ public interface UsuarioService {
 
     Usuario cambiarEstadoUsuario(Long usuarioId, boolean estado);
 
-    List<Usuario> listarUsuarioAdminActivado();
-
-    List<Usuario> listarUsuarioAdminDesactivado();
-
-    List<Usuario> listarUsuarioNormalActivado();
-
-    List<Usuario> listarUsuarioNormalDesactivado();
-
     Usuario listarPorId(Long id);
 
     Usuario buscarPorUsername(String username);
 
+    Usuario buscarPorEmail(String email);
+
+    Usuario buscarPorTelefono(String telefono);
+
+    Usuario buscarPorDni(String dni);
+
     List<Usuario> buscarPorNombre(String nombre);
 
     List<Usuario> buscarPorApellido(String apellido);
-
-    Usuario buscarPorDni(String dni);
 
     List<Usuario> usuariosActivos();
 
@@ -41,11 +40,19 @@ public interface UsuarioService {
 
     Rol getRolByNombre(String nombre);
 
-    Usuario buscarPorTelefono(String telefono);
+    List<Usuario> listarUsuarioAdminActivado();
 
-    Usuario buscarPorEmail(String email);
+    List<Usuario> listarUsuarioAdminDesactivado();
 
-    Usuario actualizarUsuario(Long id, UsuarioRequest dto);
+    List<Usuario> listarUsuarioNormalActivado();
+
+    List<Usuario> listarUsuarioNormalDesactivado();
 
     boolean usuarioExistePorUsername(String username);
+
+    boolean usuarioExistePorCorreo(String correo);
+
+    boolean usuarioExistePorTelefono(String telefono);
+
+    boolean usuarioExistePorDni(String dni);
 }

@@ -1,7 +1,6 @@
 package com.example.backend.service.impl;
 
 import com.example.backend.constants.GlobalErrorMessages;
-import com.example.backend.constants.NotFoundMessages;
 import com.example.backend.dto.request.LoginRequest;
 import com.example.backend.dto.response.TokenResponse;
 import com.example.backend.entity.Usuario;
@@ -9,7 +8,6 @@ import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.security.JwtUtils;
 import com.example.backend.security.UserDetailsServiceImpl;
 import com.example.backend.service.AuthService;
-import com.example.backend.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,40 +21,30 @@ import java.security.Principal;
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final UsuarioService usuarioService;
-    private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
+    private final JwtUtils jwtUtils;
 
     @Override
-    public TokenResponse login(LoginRequest loginRequestDTO) {
-        validarIdentificador(loginRequestDTO.getLogin());
+    public TokenResponse login(LoginRequest request) {
+
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequestDTO.getLogin(), loginRequestDTO.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword())
+        );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getLogin());
-        String token = jwtUtils.generateToken(userDetails);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getLogin());
 
-        return new TokenResponse(token);
+        return TokenResponse.builder()
+                .token(jwtUtils.generateToken(userDetails))
+                .build();
     }
 
     @Override
     public Usuario actualUsuario(Principal principal) {
+
         if (principal == null || principal.getName() == null) {
             throw new ResourceNotFoundException(GlobalErrorMessages.NO_AUTORIZADO);
         }
 
         return (Usuario) userDetailsService.loadUserByUsername(principal.getName());
     }
-
-    private void validarIdentificador(String identificador) {
-        if (identificador == null || identificador.trim().isEmpty()) {
-            throw new ResourceNotFoundException(NotFoundMessages.CODIGO_NO_ENCONTRADO);
-        }
-
-        if (!usuarioService.usuarioExistePorUsername(identificador)) {
-            throw new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO);
-        }
-    }
-
 }

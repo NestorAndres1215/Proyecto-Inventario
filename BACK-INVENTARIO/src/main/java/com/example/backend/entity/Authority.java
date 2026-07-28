@@ -9,7 +9,5 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @AllArgsConstructor
 public class Authority implements GrantedAuthority {
-
     private final String authority;
-
 }

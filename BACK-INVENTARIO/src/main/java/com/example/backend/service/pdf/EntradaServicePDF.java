@@ -1,119 +1,37 @@
 package com.example.backend.service.pdf;
 
-import java.io.ByteArrayOutputStream;
-import java.util.List;
 import com.example.backend.entity.DetalleEntrada;
+import com.example.backend.repository.Detalle_EntradaRepository;
+import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.example.backend.repository.Detalle_EntradaRepository;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 public class EntradaServicePDF {
-	
 
 	private final Detalle_EntradaRepository entradaRepository;
 
-    public byte[] generarInformePdf() throws DocumentException {
-		List<DetalleEntrada> productosActivos = entradaRepository.findAll();
+	private static final List<String> HEADERS =
+			Arrays.asList("ID", "Nombre", "Cantidad", "Descripcion", "Fecha Entrega", "Usuario");
 
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		Document document = new Document();
-		PdfWriter.getInstance(document, byteArrayOutputStream);
+	private static final float[] COLUMN_WIDTHS = {10f, 15f, 10f, 10f, 10f, 10f};
 
-		document.open();
+	private static final List<Function<DetalleEntrada, Object>> EXTRACTORES = Arrays.asList(
+			DetalleEntrada::getDetalleEntradaId,
+			detalle -> detalle.getProducto().getNombre(),
+			DetalleEntrada::getCantidad,
+			DetalleEntrada::getDescripcion,
+			detalle -> detalle.getEntrada().getFechaEntrada(),
+			detalle -> detalle.getUsuario().getNombre()
+	);
 
-		Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLACK);
-		Paragraph title = new Paragraph("Reporte Entradas Productos", titleFont);
-		title.setAlignment(Element.ALIGN_CENTER);
-		document.add(title);
-
-		Paragraph emptySpace = new Paragraph(" ");
-		document.add(emptySpace);
-
-		PdfPTable table = new PdfPTable(6);
-		table.setWidthPercentage(100);
-
-		float[] columnWidths = { 10f, 15f, 10f,10f,10f,10f };
-		table.setWidths(columnWidths);
-
-		Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-		PdfPCell headerCell;
-
-		headerCell = new PdfPCell(new Phrase("ID", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-
-		headerCell = new PdfPCell(new Phrase("Nombre", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-
-		headerCell = new PdfPCell(new Phrase("Cantidad", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-		
-		headerCell = new PdfPCell(new Phrase("Descripcion", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-		
-		headerCell = new PdfPCell(new Phrase("Fecha Entrega", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-		
-		headerCell = new PdfPCell(new Phrase("Usuario", headerFont));
-		headerCell.setBackgroundColor(BaseColor.DARK_GRAY);
-		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(headerCell);
-
-		Font cellFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
-		PdfPCell cell;
-
-		for (DetalleEntrada producto : productosActivos) {
-			cell = new PdfPCell(new Phrase(String.valueOf(producto.getDetalleEntradaId()), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-
-			cell = new PdfPCell(new Phrase(producto.getProducto().getNombre(), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-
-			cell = new PdfPCell(new Phrase(String.valueOf(producto.getCantidad()), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-			
-			cell = new PdfPCell(new Phrase(String.valueOf(producto.getDescripcion()), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-			
-			cell = new PdfPCell(new Phrase(String.valueOf(producto.getEntrada().getFechaEntrada()), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-			cell = new PdfPCell(new Phrase(String.valueOf(producto.getUsuario().getNombre()), cellFont));
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell(cell);
-
-		}
-
-		document.add(table);
-
-		document.close();
-
-		return byteArrayOutputStream.toByteArray();
+	public byte[] generarInformePdf() throws DocumentException {
+		List<DetalleEntrada> entradas = entradaRepository.findAll();
+		return PdfReportGenerator.generar("Reporte Entradas Productos", HEADERS, COLUMN_WIDTHS, entradas, EXTRACTORES);
 	}
-	
 }

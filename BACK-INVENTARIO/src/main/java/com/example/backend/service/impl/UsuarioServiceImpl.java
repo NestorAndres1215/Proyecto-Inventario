@@ -14,38 +14,37 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RolRepository rolRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public Usuario registrarUsuario(UsuarioRequest usuarioDTO) {
-        validarUsuario(usuarioDTO);
+    public Usuario registrarUsuario(UsuarioRequest dto) {
 
-        Rol rol = rolRepository.findByNombre(usuarioDTO.getRol())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.ROL_NO_ENCONTRADO)
-                );
+        validarUsuarioNuevo(dto);
+
+        Rol rol = obtenerRol(dto.getRol());
 
         Usuario usuario = Usuario.builder()
-                .username(usuarioDTO.getUsername())
-                .password(bCryptPasswordEncoder.encode(usuarioDTO.getPassword()))
-                .nombre(usuarioDTO.getNombre())
-                .apellido(usuarioDTO.getApellido())
-                .email(usuarioDTO.getEmail())
-                .telefono(usuarioDTO.getTelefono())
-                .direccion(usuarioDTO.getDireccion())
-                .dni(usuarioDTO.getDni())
-                .edad(usuarioDTO.getEdad())
-                .fechaNacimiento(usuarioDTO.getFechaNacimiento())
+                .username(dto.getUsername())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .nombre(dto.getNombre())
+                .apellido(dto.getApellido())
+                .email(dto.getEmail())
+                .telefono(dto.getTelefono())
+                .direccion(dto.getDireccion())
+                .dni(dto.getDni())
+                .edad(dto.getEdad())
+                .fechaNacimiento(dto.getFechaNacimiento())
                 .fechaRegistro(LocalDate.now())
                 .estado(true)
                 .rol(rol)
@@ -57,10 +56,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Usuario actualizarUsuario(Long id, UsuarioRequest dto) {
 
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+        Usuario usuario = listarPorId(id);
 
-        validarCamposUnicosAlActualizar(usuario, dto);
+        validarUsuarioActualizado(usuario, dto);
+
+        actualizarDatos(usuario, dto);
+
+        return usuarioRepository.save(usuario);
+    }
+
+    private void actualizarDatos(Usuario usuario, UsuarioRequest dto) {
 
         usuario.setUsername(dto.getUsername());
         usuario.setNombre(dto.getNombre());
@@ -73,35 +78,53 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
 
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            usuario.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         if (dto.getRol() != null) {
-            Rol rol = rolRepository.findByNombre(dto.getRol())
-                    .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.ROL_NO_ENCONTRADO));
-            usuario.setRol(rol);
+            usuario.setRol(obtenerRol(dto.getRol()));
         }
-
-        return usuarioRepository.save(usuario);
     }
 
+    private void validarUsuarioNuevo(UsuarioRequest dto) {
 
-    private void validarCamposUnicosAlActualizar(Usuario usuario, UsuarioRequest dto) {
+        validarUnico(usuarioRepository.existsByUsername(dto.getUsername()), AlreadyExistsMessages.USUARIO_YA_EXISTE);
 
-        if (dto.getUsername() != null && !dto.getUsername().equals(usuario.getUsername()) && usuarioRepository.existsByUsername(dto.getUsername())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.USUARIO_YA_EXISTE);
-        }
-        if (dto.getEmail() != null && !dto.getEmail().equals(usuario.getEmail()) && usuarioRepository.existsByEmail(dto.getEmail())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.CORREO_YA_EXISTE);
-        }
+        validarUnico(usuarioRepository.existsByEmail(dto.getEmail()), AlreadyExistsMessages.CORREO_YA_EXISTE);
 
-        if (dto.getTelefono() != null && !dto.getTelefono().equals(usuario.getTelefono()) && usuarioRepository.existsByTelefono(dto.getTelefono())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.TELEFONO_YA_EXISTE);
-        }
+        validarUnico(usuarioRepository.existsByTelefono(dto.getTelefono()), AlreadyExistsMessages.TELEFONO_YA_EXISTE);
 
-        if (dto.getDni() != null && !dto.getDni().equals(usuario.getDni()) && usuarioRepository.existsByDni(dto.getDni())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.DNI_YA_EXISTE);
+        validarUnico(usuarioRepository.existsByDni(dto.getDni()), AlreadyExistsMessages.DNI_YA_EXISTE);
+    }
+
+    private void validarUsuarioActualizado(Usuario usuario, UsuarioRequest dto) {
+
+        validarCambio(usuario.getUsername(), dto.getUsername(), usuarioRepository::existsByUsername, AlreadyExistsMessages.USUARIO_YA_EXISTE);
+
+        validarCambio(usuario.getEmail(), dto.getEmail(), usuarioRepository::existsByEmail, AlreadyExistsMessages.CORREO_YA_EXISTE);
+
+        validarCambio(usuario.getTelefono(), dto.getTelefono(), usuarioRepository::existsByTelefono, AlreadyExistsMessages.TELEFONO_YA_EXISTE);
+
+        validarCambio(usuario.getDni(), dto.getDni(), usuarioRepository::existsByDni, AlreadyExistsMessages.DNI_YA_EXISTE);
+    }
+
+    private void validarCambio(String valorActual, String nuevoValor, Predicate<String> existe, String mensaje) {
+
+        if (nuevoValor != null && !Objects.equals(valorActual, nuevoValor) && existe.test(nuevoValor)) {
+            throw new ResourceAlreadyExistsException(mensaje);
         }
+    }
+
+    private void validarUnico(boolean existe, String mensaje) {
+        if (existe) {
+            throw new ResourceAlreadyExistsException(mensaje);
+        }
+    }
+
+    private Rol obtenerRol(String nombreRol) {
+        return rolRepository.findByNombre(nombreRol)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.ROL_NO_ENCONTRADO));
     }
 
     @Override
@@ -116,49 +139,44 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario cambiarEstadoUsuario(Long usuarioId, boolean estado) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO)
-                );
-
+        Usuario usuario = listarPorId(usuarioId);
         usuario.setEstado(estado);
         return usuarioRepository.save(usuario);
     }
 
     @Override
-    public List<Usuario> listarUsuarioAdminActivado() {
-        return usuarioRepository.listarUsuarioAdminActivado();
-    }
-
-    @Override
-    public List<Usuario> listarUsuarioAdminDesactivado() {
-        return usuarioRepository.listarUsuarioAdminDesactivado();
-    }
-
-
-    @Override
-    public List<Usuario> listarUsuarioNormalActivado() {
-        return usuarioRepository.listarUsuarioNormalActivado();
-    }
-
-
-    @Override
-    public List<Usuario> listarUsuarioNormalDesactivado() {
-        return usuarioRepository.listarUsuarioNormalDesactivado();
-    }
-
-    @Override
     public Usuario listarPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
     }
 
     @Override
     public Usuario buscarPorUsername(String username) {
         return usuarioRepository.findByUsername(username)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO)
-                );
+                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+    }
+
+    @Override
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+    }
+
+    @Override
+    public Usuario buscarPorTelefono(String telefono) {
+        return usuarioRepository.findByTelefono(telefono)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+    }
+
+    @Override
+    public Usuario buscarPorDni(String dni) {
+        return usuarioRepository.findByDni(dni)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
     }
 
     @Override
@@ -169,14 +187,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public List<Usuario> buscarPorApellido(String apellido) {
         return usuarioRepository.findByApellidoContainingIgnoreCase(apellido);
-    }
-
-    @Override
-    public Usuario buscarPorDni(String dni) {
-        return usuarioRepository.findByDni(dni)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO)
-                );
     }
 
     @Override
@@ -194,50 +204,29 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findByRolAndEstado(rol, estado);
     }
 
-
     @Override
     public Rol getRolByNombre(String nombre) {
-        return rolRepository.findByNombre(nombre)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        NotFoundMessages.ROL_NO_ENCONTRADO
-                ));
+        return obtenerRol(nombre);
     }
 
     @Override
-    public Usuario buscarPorTelefono(String telefono) {
-        return usuarioRepository.findByTelefono(telefono)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                NotFoundMessages.USUARIO_NO_ENCONTRADO
-                        )
-                );
+    public List<Usuario> listarUsuarioAdminActivado() {
+        return usuarioRepository.listarUsuarioAdminActivado();
     }
 
     @Override
-    public Usuario buscarPorEmail(String email) {
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                NotFoundMessages.USUARIO_NO_ENCONTRADO
-                        )
-                );
+    public List<Usuario> listarUsuarioAdminDesactivado() {
+        return usuarioRepository.listarUsuarioAdminDesactivado();
     }
 
+    @Override
+    public List<Usuario> listarUsuarioNormalActivado() {
+        return usuarioRepository.listarUsuarioNormalActivado();
+    }
 
-    private void validarUsuario(UsuarioRequest dto) {
-        if (usuarioExistePorUsername(dto.getUsername())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.USUARIO_YA_EXISTE);
-        }
-        if (usuarioExistePorCorreo(dto.getEmail())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.CORREO_YA_EXISTE);
-        }
-        if (usuarioExistePorTelefono(dto.getTelefono())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.TELEFONO_YA_EXISTE);
-        }
-        if (usuarioExistePorDni(dto.getDni())) { // ← validación DNI
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.DNI_YA_EXISTE);
-        }
-
+    @Override
+    public List<Usuario> listarUsuarioNormalDesactivado() {
+        return usuarioRepository.listarUsuarioNormalDesactivado();
     }
 
     @Override
@@ -245,14 +234,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.existsByUsername(username);
     }
 
+    @Override
     public boolean usuarioExistePorCorreo(String correo) {
         return usuarioRepository.existsByEmail(correo);
     }
 
+    @Override
     public boolean usuarioExistePorTelefono(String telefono) {
         return usuarioRepository.existsByTelefono(telefono);
     }
 
+    @Override
     public boolean usuarioExistePorDni(String dni) {
         return usuarioRepository.existsByDni(dni);
     }

@@ -8,4 +8,5 @@ public class NotFoundMessages {
     public static final String PROVEEDOR_NO_ENCONTRADO = "PROVEEDOR NO ENCONTRADO";
     public static final String PRODUCTO_NO_ENCONTRADO = "PRODUCTO NO ENCONTRADO";
     public static final String SALIDA_NO_ENCONTRADO = "SALIDA NO ENCONTRADO";
+    public static final String ENTRADA_NO_ENCONTRADO = "ENTRAFDA NO ENCONTRADO";
 }

@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Objects;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +23,18 @@ public class ProveedorServiceImpl implements ProveedorService {
     private final ProveedorRepository proveedorRepository;
 
     @Override
-    public Proveedor crearProveedor(ProveedorRequest proveedorDTO) {
-        validarUnicidadProveedor(proveedorDTO);
+    public Proveedor crearProveedor(ProveedorRequest dto) {
+
+        validarProveedorNuevo(dto);
+
         Proveedor proveedor = Proveedor.builder()
-                .nombre(proveedorDTO.getNombre())
-                .ruc(proveedorDTO.getRuc())
-                .direccion(proveedorDTO.getDireccion())
-                .telefono(proveedorDTO.getTelefono())
-                .email(proveedorDTO.getEmail())
-                .fechaRegistro(LocalDate.now())
+                .nombre(dto.getNombre())
+                .ruc(dto.getRuc())
+                .direccion(dto.getDireccion())
+                .telefono(dto.getTelefono())
+                .email(dto.getEmail())
                 .contacto("")
+                .fechaRegistro(LocalDate.now())
                 .estado(true)
                 .build();
 
@@ -39,19 +42,23 @@ public class ProveedorServiceImpl implements ProveedorService {
     }
 
     @Override
-    public Proveedor actualizarProveedor(ProveedorRequest proveedorDTO) {
+    public Proveedor actualizarProveedor(ProveedorRequest dto) {
 
-        Proveedor proveedor = proveedorRepository.findById(proveedorDTO.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
+        Proveedor proveedor = obtenerPorId(dto.getId());
 
-        validarUnicidadProveedorActualizacion(proveedor, proveedorDTO);
-        proveedor.setNombre(proveedorDTO.getNombre());
-        proveedor.setRuc(proveedorDTO.getRuc());
-        proveedor.setDireccion(proveedorDTO.getDireccion());
-        proveedor.setTelefono(proveedorDTO.getTelefono());
-        proveedor.setEmail(proveedorDTO.getEmail());
+        validarProveedorActualizado(proveedor, dto);
+
+        actualizarDatos(proveedor, dto);
 
         return proveedorRepository.save(proveedor);
+    }
+
+    private void actualizarDatos(Proveedor proveedor, ProveedorRequest dto) {
+        proveedor.setNombre(dto.getNombre());
+        proveedor.setRuc(dto.getRuc());
+        proveedor.setDireccion(dto.getDireccion());
+        proveedor.setTelefono(dto.getTelefono());
+        proveedor.setEmail(dto.getEmail());
     }
 
     @Override
@@ -93,65 +100,53 @@ public class ProveedorServiceImpl implements ProveedorService {
     public Proveedor obtenerPorId(Long id) {
         return proveedorRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO)
-                );
+                        new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
     }
 
+    @Override
     public Proveedor activarProveedor(Long id) {
         return cambiarEstadoProveedor(id, true);
     }
 
+    @Override
     public Proveedor desactivarProveedor(Long id) {
         return cambiarEstadoProveedor(id, false);
     }
-    private Proveedor cambiarEstadoProveedor(Long id, boolean estado) {
-        Proveedor proveedor = proveedorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
 
+    private Proveedor cambiarEstadoProveedor(Long id, boolean estado) {
+        Proveedor proveedor = obtenerPorId(id);
         proveedor.setEstado(estado);
         return proveedorRepository.save(proveedor);
     }
 
+    private void validarProveedorNuevo(ProveedorRequest dto) {
 
-    private void validarUnicidadProveedor(ProveedorRequest proveedorDTO) {
-        if (proveedorRepository.existsByRuc(proveedorDTO.getRuc())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.RUC_YA_EXISTE);
-        }
+        validarUnico(proveedorRepository.existsByRuc(dto.getRuc()), AlreadyExistsMessages.RUC_YA_EXISTE);
 
-        if (proveedorRepository.existsByEmail(proveedorDTO.getEmail())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.CORREO_YA_EXISTE);
-        }
+        validarUnico(proveedorRepository.existsByEmail(dto.getEmail()), AlreadyExistsMessages.CORREO_YA_EXISTE);
 
-        if (proveedorRepository.existsByTelefono(proveedorDTO.getTelefono())) {
-            throw new ResourceAlreadyExistsException(AlreadyExistsMessages.TELEFONO_YA_EXISTE);
+        validarUnico(proveedorRepository.existsByTelefono(dto.getTelefono()), AlreadyExistsMessages.TELEFONO_YA_EXISTE);
+    }
+
+    private void validarProveedorActualizado(Proveedor proveedor, ProveedorRequest dto) {
+
+        validarCambio(proveedor.getRuc(), dto.getRuc(), proveedorRepository::existsByRuc, AlreadyExistsMessages.RUC_YA_EXISTE);
+
+        validarCambio(proveedor.getEmail(), dto.getEmail(), proveedorRepository::existsByEmail, AlreadyExistsMessages.CORREO_YA_EXISTE);
+
+        validarCambio(proveedor.getTelefono(), dto.getTelefono(), proveedorRepository::existsByTelefono, AlreadyExistsMessages.TELEFONO_YA_EXISTE);
+    }
+
+    private void validarCambio(String valorActual, String nuevoValor, Predicate<String> existe, String mensaje) {
+
+        if (nuevoValor != null && !Objects.equals(valorActual, nuevoValor) && existe.test(nuevoValor)) {
+            throw new ResourceAlreadyExistsException(mensaje);
         }
     }
 
-
-    private void validarUnicidadProveedorActualizacion(Proveedor proveedorExistente, ProveedorRequest proveedorDTO) {
-
-        // Validar RUC solo si cambió
-        if (!proveedorExistente.getRuc().equals(proveedorDTO.getRuc())) {
-            List<Proveedor> proveedoresConRuc = proveedorRepository.findByRuc(proveedorDTO.getRuc());
-            if (!proveedoresConRuc.isEmpty()) {
-                throw new ResourceAlreadyExistsException(AlreadyExistsMessages.RUC_YA_EXISTE);
-            }
-        }
-
-        if (!proveedorExistente.getEmail().equals(proveedorDTO.getEmail())) {
-            List<Proveedor> proveedoresConEmail = proveedorRepository.findByEmail(proveedorDTO.getEmail());
-            if (!proveedoresConEmail.isEmpty()) {
-                throw new ResourceAlreadyExistsException(AlreadyExistsMessages.CORREO_YA_EXISTE);
-            }
-        }
-
-        if (!proveedorExistente.getTelefono().equals(proveedorDTO.getTelefono())) {
-            List<Proveedor> proveedoresConTelefono = proveedorRepository.findByTelefono(proveedorDTO.getTelefono());
-            if (!proveedoresConTelefono.isEmpty()) {
-                throw new ResourceAlreadyExistsException(AlreadyExistsMessages.TELEFONO_YA_EXISTE);
-            }
+    private void validarUnico(boolean existe, String mensaje) {
+        if (existe) {
+            throw new ResourceAlreadyExistsException(mensaje);
         }
     }
-
-
 }

@@ -1,8 +1,9 @@
 package com.example.backend.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import javax.validation.constraints.*;
+
 
 @Data
 @NoArgsConstructor

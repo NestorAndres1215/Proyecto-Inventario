@@ -22,13 +22,12 @@ public class OpenApiConfig {
                                 Documentación de la API REST del módulo **AUTH SERVICE**.
                                 Este servicio gestiona la autenticación, autorización y
                                 administración de roles y usuarios dentro del ecosistema **Red Social**.
-                                """) // Descripción larga
+                                """)
                         .contact(new Contact()
                                 .name("Equipo de Desarrollo - Red Social")
                                 .email("soporte@redsocial.com")
                                 .url("https://redsocial.com"))
                 )
-                // Configuración de seguridad JWT
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
@@ -37,7 +36,6 @@ public class OpenApiConfig {
                                         .bearerFormat("JWT")
                         )
                 )
-                // Seguridad global: aplica a todos los endpoints
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }

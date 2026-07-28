@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
-@Tag(name = "Usuaurio")
 @RequiredArgsConstructor
 @Tag(name = "Usuario")
 public class UsuarioController {

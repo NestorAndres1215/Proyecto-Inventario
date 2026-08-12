@@ -1,17 +1,16 @@
 package com.example.backend.service.impl;
 
-import com.example.backend.constants.NotFoundMessages;
 import com.example.backend.dto.request.ProductoRequest;
 import com.example.backend.entity.Producto;
 import com.example.backend.entity.Proveedor;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.ProductoMapper;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.ProveedorRepository;
 import com.example.backend.service.ProductoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -20,6 +19,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
     private final ProveedorRepository proveedorRepository;
+    private final ProductoMapper productoMapper;
 
     @Override
     public List<Producto> obtenerTodosLosProductos() {
@@ -59,20 +59,8 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public Producto agregarProducto(ProductoRequest dto) {
-
         Proveedor proveedor = obtenerProveedor(dto.getProveedorId());
-
-        Producto producto = Producto.builder()
-                .nombre(dto.getNombre())
-                .precio(dto.getPrecio())
-                .descripcion(dto.getDescripcion())
-                .ubicacion(dto.getUbicacion())
-                .stock(dto.getStock())
-                .estado(true)
-                .fechaRegistro(LocalDate.now())
-                .proveedor(proveedor)
-                .build();
-
+        Producto producto = productoMapper.toEntity(dto, proveedor);
         return productoRepository.save(producto);
     }
 
@@ -80,29 +68,24 @@ public class ProductoServiceImpl implements ProductoService {
     public Producto actualizarProducto(ProductoRequest dto) {
         Producto producto = obtenerProducto(dto.getId());
         Proveedor proveedor = obtenerProveedor(dto.getProveedorId());
-        actualizarDatosProducto(producto, dto, proveedor);
+        productoMapper.updateEntity(producto, dto, proveedor);
         return productoRepository.save(producto);
     }
 
-    private void actualizarDatosProducto(Producto producto, ProductoRequest dto, Proveedor proveedor) {
-        producto.setNombre(dto.getNombre());
-        producto.setPrecio(dto.getPrecio());
-        producto.setDescripcion(dto.getDescripcion());
-        producto.setUbicacion(dto.getUbicacion());
-        producto.setStock(dto.getStock());
-        producto.setProveedor(proveedor);
-    }
-
     private Producto obtenerProducto(Long id) {
+
         return productoRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.PRODUCTO_NO_ENCONTRADO));
+                        new ResourceNotFoundException("Producto no encontrado")
+                );
     }
 
     private Proveedor obtenerProveedor(Long id) {
+
         return proveedorRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.PROVEEDOR_NO_ENCONTRADO));
+                        new ResourceNotFoundException("Proveedor no encontrado")
+                );
     }
 
     @Override

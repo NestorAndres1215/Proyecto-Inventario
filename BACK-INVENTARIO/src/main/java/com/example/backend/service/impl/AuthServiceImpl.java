@@ -1,6 +1,5 @@
 package com.example.backend.service.impl;
 
-import com.example.backend.constants.GlobalErrorMessages;
 import com.example.backend.dto.request.LoginRequest;
 import com.example.backend.dto.response.TokenResponse;
 import com.example.backend.entity.Usuario;
@@ -28,10 +27,16 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponse login(LoginRequest request) {
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        request.getLogin(),
+                        request.getPassword()
+                )
         );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getLogin());
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(
+                        request.getLogin()
+                );
 
         return TokenResponse.builder()
                 .token(jwtUtils.generateToken(userDetails))
@@ -42,9 +47,13 @@ public class AuthServiceImpl implements AuthService {
     public Usuario actualUsuario(Principal principal) {
 
         if (principal == null || principal.getName() == null) {
-            throw new ResourceNotFoundException(GlobalErrorMessages.NO_AUTORIZADO);
+            throw new ResourceNotFoundException(
+                    "Usuario no autorizado"
+            );
         }
 
-        return (Usuario) userDetailsService.loadUserByUsername(principal.getName());
+        return (Usuario) userDetailsService.loadUserByUsername(
+                principal.getName()
+        );
     }
 }

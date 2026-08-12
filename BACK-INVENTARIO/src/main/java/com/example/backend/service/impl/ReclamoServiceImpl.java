@@ -1,10 +1,10 @@
 package com.example.backend.service.impl;
 
-import com.example.backend.constants.NotFoundMessages;
 import com.example.backend.dto.request.ReclamosRequest;
 import com.example.backend.entity.Reclamos;
 import com.example.backend.entity.Usuario;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.ReclamoMapper;
 import com.example.backend.repository.ReclamoRepository;
 import com.example.backend.service.ReclamoService;
 import com.example.backend.service.UsuarioService;
@@ -24,6 +24,7 @@ public class ReclamoServiceImpl implements ReclamoService {
     private final JavaMailSender mailSender;
     private final ReclamoRepository reclamoRepository;
     private final UsuarioService usuarioService;
+    private final ReclamoMapper reclamoMapper;
 
     private static final String ASUNTO_DISCULPAS =
             "Respuesta de disculpas para el reclamo #%d";
@@ -39,7 +40,10 @@ public class ReclamoServiceImpl implements ReclamoService {
     private static final String MENSAJE_DISCULPAS =
             "Mensaje de disculpas: %s\n\n";
 
-    private static final String FIRMA = "--------------------------\nAtentamente,\nEquipo de Soporte";
+    private static final String FIRMA =
+            "--------------------------\n"
+                    + "Atentamente,\n"
+                    + "Equipo de Soporte";
 
     @Override
     public List<Reclamos> obtenerTodosLosReclamos() {
@@ -51,20 +55,18 @@ public class ReclamoServiceImpl implements ReclamoService {
 
         Usuario usuario = usuarioService.listarPorId(request.getCodigo());
 
-        Reclamos reclamo = Reclamos.builder()
-                .asunto(request.getAsunto())
-                .usuario(usuario)
-                .estado(true)
-                .build();
+        Reclamos reclamo = reclamoMapper.toEntity(request, usuario);
 
         return guardarReclamo(reclamo);
     }
 
     @Override
     public Reclamos obtenerReclamoPorId(Long id) {
+
         return reclamoRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.RECLAMO_NO_ENCONTRADO));
+                        new ResourceNotFoundException("Reclamo no encontrado")
+                );
     }
 
     @Override
@@ -76,8 +78,14 @@ public class ReclamoServiceImpl implements ReclamoService {
     public Reclamos enviarDisculpasReclamo(Long id, String mensaje) {
 
         Reclamos reclamo = obtenerReclamoPorId(id);
-        enviarCorreo(reclamo.getUsuario().getEmail(), construirAsunto(id), construirContenido(reclamo, mensaje));
+
+        String asunto = construirAsunto(id);
+        String contenido = construirContenido(reclamo, mensaje);
+
+        enviarCorreo(reclamo.getUsuario().getEmail(), asunto, contenido);
+
         reclamo.setEstado(false);
+
         return guardarReclamo(reclamo);
     }
 
@@ -120,17 +128,23 @@ public class ReclamoServiceImpl implements ReclamoService {
 
         Usuario usuario = reclamo.getUsuario();
 
-        return String.format(SALUDO,
-                usuario.getNombre(),
-                usuario.getApellido())
+        return String.format(SALUDO, usuario.getNombre(), usuario.getApellido())
                 + CUERPO_DISCULPAS
-                + String.format(MENSAJE_DISCULPAS, mensaje)
+                + String.format(
+                MENSAJE_DISCULPAS,
+                mensaje
+        )
                 + FIRMA;
     }
 
-    private void enviarCorreo(String destinatario, String asunto, String contenido) {
+    private void enviarCorreo(
+            String destinatario,
+            String asunto,
+            String contenido
+    ) {
 
         SimpleMailMessage correo = new SimpleMailMessage();
+
         correo.setTo(destinatario);
         correo.setSubject(asunto);
         correo.setText(contenido);

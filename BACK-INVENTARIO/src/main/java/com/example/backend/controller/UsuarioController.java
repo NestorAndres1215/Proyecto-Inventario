@@ -6,11 +6,12 @@ import com.example.backend.entity.Rol;
 import com.example.backend.entity.Usuario;
 import com.example.backend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+
 import java.util.List;
 
 @RestController

@@ -1,6 +1,5 @@
 package com.example.backend.security;
 
-import com.example.backend.constants.GlobalErrorMessages;
 import com.example.backend.dto.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +21,16 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void handle(HttpServletRequest request,
-                       HttpServletResponse response,
-                       AccessDeniedException ex) throws IOException {
+    public void handle(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AccessDeniedException ex
+    ) throws IOException {
 
         ErrorResponse error = ErrorResponse.builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .error(GlobalErrorMessages.PROHIBIDO)
-                .message(ex.getMessage())
+                .error("Prohibido")
+                .message("No tienes permisos para realizar esta operación.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -37,6 +38,9 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        objectMapper.writeValue(response.getWriter(), error);
+        objectMapper.writeValue(
+                response.getWriter(),
+                error
+        );
     }
 }

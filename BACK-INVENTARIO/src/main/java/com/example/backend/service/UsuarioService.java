@@ -16,8 +16,6 @@ public interface UsuarioService {
 
     Usuario activarUsuario(Long usuarioId);
 
-    Usuario cambiarEstadoUsuario(Long usuarioId, boolean estado);
-
     Usuario listarPorId(Long id);
 
     Usuario buscarPorUsername(String username);
@@ -48,11 +46,5 @@ public interface UsuarioService {
 
     List<Usuario> listarUsuarioNormalDesactivado();
 
-    boolean usuarioExistePorUsername(String username);
 
-    boolean usuarioExistePorCorreo(String correo);
-
-    boolean usuarioExistePorTelefono(String telefono);
-
-    boolean usuarioExistePorDni(String dni);
 }

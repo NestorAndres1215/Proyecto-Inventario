@@ -2,10 +2,8 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.math.BigDecimal;
 
 @Data
@@ -15,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "detalle_entrada")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class DetalleEntrada {
 
 	@Id

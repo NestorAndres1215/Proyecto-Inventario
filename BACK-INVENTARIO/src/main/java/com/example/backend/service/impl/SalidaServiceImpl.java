@@ -1,16 +1,19 @@
-import com.example.backend.constants.NotFoundMessages;
+package com.example.backend.service.impl;
+
 import com.example.backend.dto.request.SalidasRequest;
 import com.example.backend.entity.DetalleSalida;
 import com.example.backend.entity.Producto;
 import com.example.backend.entity.Salidas;
 import com.example.backend.entity.Usuario;
-import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.SalidaMapper;
 import com.example.backend.repository.Detalle_SalidaRepository;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.SalidaRepository;
 import com.example.backend.repository.UsuarioRepository;
 import com.example.backend.service.SalidaService;
+
+import com.example.backend.validators.SalidaValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,27 +32,35 @@ public class SalidaServiceImpl implements SalidaService {
     private final UsuarioRepository usuarioRepository;
     private final SalidaRepository salidaRepository;
 
+    private final SalidaMapper salidaMapper;
+    private final SalidaValidator salidaValidator;
+
     @Override
     public List<DetalleSalida> crearDetalleSalida(List<SalidasRequest> detalles) {
 
-        validarLista(detalles);
+        salidaValidator.validarLista(detalles);
 
         Usuario usuario = obtenerUsuario(detalles.get(0).getUsuario());
 
-        Salidas salida = crearSalida(detalles.get(0), usuario);
+        Salidas salida = salidaMapper.toSalida(detalles.get(0), usuario);
+
+        salida = salidaRepository.save(salida);
 
         List<DetalleSalida> detalleSalidas = new ArrayList<>();
+
         BigDecimal total = BigDecimal.ZERO;
 
         for (SalidasRequest dto : detalles) {
 
             Producto producto = obtenerProducto(dto.getProducto());
 
-            DetalleSalida detalle = crearDetalle(dto, producto, usuario, salida);
+            salidaValidator.validarStock(producto, dto.getCantidad());
 
-            total = total.add(detalle.getSubtotal());
+            DetalleSalida detalle = salidaMapper.toDetalle(dto, producto, usuario, salida);
 
             actualizarStock(producto, detalle.getStockActual());
+
+            total = total.add(detalle.getSubtotal());
 
             detalleSalidas.add(detalle);
         }
@@ -58,65 +69,25 @@ public class SalidaServiceImpl implements SalidaService {
 
         salida.setTotal(total);
         salidaRepository.save(salida);
-
         return detalleSalidas;
     }
 
-    private void validarLista(List<SalidasRequest> detalles) {
-        if (detalles == null || detalles.isEmpty()) {
-            throw new BadRequestException("La lista de detalles no puede estar vacía.");
-        }
-    }
-
     private Usuario obtenerUsuario(String username) {
+
         return usuarioRepository.findByUsername(username)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+                        new ResourceNotFoundException("Usuario no encontrado")
+                );
     }
 
     private Producto obtenerProducto(String nombre) {
+
         return productoRepository.findByNombre(nombre)
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Producto no encontrado: " + nombre));
-    }
-
-    private Salidas crearSalida(SalidasRequest dto, Usuario usuario) {
-
-        Salidas salida = Salidas.builder()
-                .usuario(usuario)
-                .observacion(dto.getObservaciones())
-                .fechaSalida(dto.getFechaSalida())
-                .estado("REGISTRADO")
-                .total(BigDecimal.ZERO)
-                .build();
-
-        return salidaRepository.save(salida);
-    }
-
-    private DetalleSalida crearDetalle(SalidasRequest dto, Producto producto, Usuario usuario, Salidas salida) {
-
-        int stockAnterior = producto.getStock();
-        int stockActual = stockAnterior - dto.getCantidad();
-
-        if (stockActual < 0) {
-            throw new BadRequestException("Stock insuficiente para el producto: " + producto.getNombre());
-        }
-
-        BigDecimal subtotal = producto.getPrecio().multiply(BigDecimal.valueOf(dto.getCantidad()));
-
-        return DetalleSalida.builder()
-                .cantidad(dto.getCantidad())
-                .descripcion(dto.getDescripcion())
-                .precioUnitario(producto.getPrecio())
-                .subtotal(subtotal)
-                .stockAnterior(stockAnterior)
-                .stockActual(stockActual)
-                .usuario(usuario)
-                .producto(producto)
-                .salida(salida)
-                .build();
+                        new ResourceNotFoundException("Producto no encontrado: " + nombre)
+                );
     }
 
     private void actualizarStock(Producto producto, int nuevoStock) {
@@ -126,9 +97,11 @@ public class SalidaServiceImpl implements SalidaService {
 
     @Override
     public DetalleSalida obtenerPorId(Long id) {
+
         return detalleSalidaRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(NotFoundMessages.SALIDA_NO_ENCONTRADO));
+                        new ResourceNotFoundException("Salida no encontrada")
+                );
     }
 
     @Override

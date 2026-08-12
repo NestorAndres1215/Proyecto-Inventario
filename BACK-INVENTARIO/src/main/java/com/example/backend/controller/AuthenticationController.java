@@ -6,13 +6,11 @@ import com.example.backend.entity.Usuario;
 import com.example.backend.security.UserDetailsServiceImpl;
 import com.example.backend.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.security.Principal;
 
 @RestController

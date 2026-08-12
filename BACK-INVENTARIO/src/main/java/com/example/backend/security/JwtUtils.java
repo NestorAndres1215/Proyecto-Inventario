@@ -32,7 +32,9 @@ public class JwtUtils {
 
     @PostConstruct
     private void init() {
-        signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        signingKey = Keys.hmacShaKeyFor(
+                secret.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -54,8 +56,8 @@ public class JwtUtils {
 
     public <T> T extractClaim(
             String token,
-            Function<Claims, T> claimsResolver) {
-
+            Function<Claims, T> claimsResolver
+    ) {
         return claimsResolver.apply(extractAllClaims(token));
     }
 
@@ -69,8 +71,8 @@ public class JwtUtils {
 
     private String createToken(
             Map<String, Object> claims,
-            String username) {
-
+            String username
+    ) {
         Date now = new Date();
 
         return Jwts.builder()

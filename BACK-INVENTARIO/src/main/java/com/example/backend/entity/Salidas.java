@@ -30,7 +30,7 @@ public class Salidas {
     private String observacion;
 
     @Column(name = "sa_estado", nullable = false)
-    private String estado;
+    private String estado  = "Activo";
 
     @Column(name = "sa_total", precision = 10, scale = 2)
     private BigDecimal total;

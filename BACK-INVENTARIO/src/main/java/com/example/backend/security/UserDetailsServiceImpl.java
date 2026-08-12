@@ -1,6 +1,5 @@
 package com.example.backend.security;
 
-import com.example.backend.constants.NotFoundMessages;
 import com.example.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,9 +14,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UsuarioRepository usuarioRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String input)
+            throws UsernameNotFoundException {
+
         return usuarioRepository.findByUsername(input)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException(NotFoundMessages.USUARIO_NO_ENCONTRADO));
+                        new UsernameNotFoundException(
+                                "Usuario no encontrado"
+                        )
+                );
     }
 }

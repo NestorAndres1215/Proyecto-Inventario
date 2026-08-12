@@ -22,7 +22,7 @@ public class EntradaController {
 
     private final DetalleEntradaService detalleEntradaService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<List<DetalleEntrada>> crearEntrada(@RequestBody List<DetalleEntrada> listaDetalleEntrada) {
         return ResponseEntity.ok(detalleEntradaService.crearDetalleEntrada(listaDetalleEntrada));
     }

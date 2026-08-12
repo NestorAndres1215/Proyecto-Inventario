@@ -1,19 +1,19 @@
 package com.example.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -62,16 +62,16 @@ public class Usuario implements UserDetails {
     @Column(name = "us_estado")
     private boolean estado;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "us_rol", referencedColumnName = "tr_codigo")
-    @JsonIgnore
     private Rol rol;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new Authority(rol.getNombre()));
+        return rol != null
+                ? List.of(new SimpleGrantedAuthority(rol.getNombre()))
+                : List.of();
     }
-
     @Override
     public boolean isEnabled() {
         return estado;

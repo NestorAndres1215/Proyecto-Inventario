@@ -1,6 +1,8 @@
 package com.example.backend.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import jakarta.persistence.*;
@@ -22,18 +24,16 @@ public class Entradas {
 	@Column(name = "ent_codigo")
 	private Long entradaId;
 
-	@Column(name = "ent_numero", nullable = false, unique = true)
-	private String numero;
-
 	@Column(name = "ent_fecha_entrada", nullable = false)
-	private Date fechaEntrada;
+	private LocalDate fechaEntrada;
 
-	@Temporal(TemporalType.TIMESTAMP)
+
+	@Builder.Default
 	@Column(name = "ent_fecha_registro", nullable = false)
-	private Date fechaRegistro;
+	private LocalDate  fechaRegistro = LocalDate .now();
 
 	@Column(name = "ent_estado", nullable = false)
-	private String estado;
+	private String estado = "Activo";
 
 	@Column(name = "ent_observacion")
 	private String observacion;

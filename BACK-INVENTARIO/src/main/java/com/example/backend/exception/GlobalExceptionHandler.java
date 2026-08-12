@@ -1,6 +1,5 @@
 package com.example.backend.exception;
 
-import com.example.backend.constants.GlobalErrorMessages;
 import com.example.backend.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,8 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,
             String error,
-            Object message) {
+            Object message
+    ) {
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(status.value())
@@ -32,103 +32,137 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.status(status).body(response);
+        return ResponseEntity
+                .status(status)
+                .body(response);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleNotFound(
+            ResourceNotFoundException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.NOT_FOUND,
-                GlobalErrorMessages.NO_ENCONTRADO,
+                "Recurso no encontrado",
                 ex.getMessage()
         );
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleAlreadyExists(ResourceAlreadyExistsException ex) {
+    public ResponseEntity<ErrorResponse> handleAlreadyExists(
+            ResourceAlreadyExistsException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.CONFLICT,
-                GlobalErrorMessages.CONFLICTO,
+                "Conflicto",
                 ex.getMessage()
         );
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex) {
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            BadRequestException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                GlobalErrorMessages.SOLICITUD_INVALIDA,
+                "Solicitud inválida",
                 ex.getMessage()
         );
     }
 
     @ExceptionHandler(JwtAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleJwtAuthentication(JwtAuthenticationException ex) {
-        return buildResponse(
-                HttpStatus.UNAUTHORIZED,
-                GlobalErrorMessages.NO_AUTORIZADO,
-                ex.getMessage()
-        );
-    }
+    public ResponseEntity<ErrorResponse> handleJwtAuthentication(
+            JwtAuthenticationException ex
+    ) {
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
         return buildResponse(
                 HttpStatus.UNAUTHORIZED,
-                GlobalErrorMessages.NO_AUTORIZADO,
+                "No autorizado",
                 ex.getMessage()
         );
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<ErrorResponse> handleBadCredentials(
+            BadCredentialsException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.UNAUTHORIZED,
-                GlobalErrorMessages.NO_AUTORIZADO,
+                "No autorizado",
                 "Usuario o contraseña incorrectos."
         );
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(
+            AuthenticationException ex
+    ) {
+
+        return buildResponse(
+                HttpStatus.UNAUTHORIZED,
+                "No autorizado",
+                "No autorizado."
+        );
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+            AccessDeniedException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.FORBIDDEN,
-                GlobalErrorMessages.PROHIBIDO,
-                ex.getMessage()
+                "Prohibido",
+                "No tienes permisos para realizar esta operación."
         );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidation(
+            MethodArgumentNotValidException ex
+    ) {
 
         Map<String, String> errores = new LinkedHashMap<>();
 
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errores.put(error.getField(), error.getDefaultMessage());
+            errores.put(
+                    error.getField(),
+                    error.getDefaultMessage()
+            );
         }
 
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                GlobalErrorMessages.SOLICITUD_INVALIDA,
+                "Solicitud inválida",
                 errores
         );
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex
+    ) {
+
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                GlobalErrorMessages.SOLICITUD_INVALIDA,
+                "Solicitud inválida",
                 "Valor inválido para el parámetro: " + ex.getName()
         );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception ex
+    ) {
+
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                GlobalErrorMessages.ERROR_PROCESO,
-                ex.getMessage()
+                "Error interno",
+                "Ha ocurrido un error interno en el servidor."
         );
     }
 }

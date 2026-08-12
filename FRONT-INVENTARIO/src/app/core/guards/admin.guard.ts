@@ -1,34 +1,28 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { LoginService } from 'src/app/core/services/login.service';
+import { ROLES } from '../constants/rol';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminGuard implements CanActivate {
-
   constructor(
-    private loginService: LoginService,
-    private router: Router
+    private readonly loginService: LoginService,
+    private readonly router: Router,
   ) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    const isLogged = this.loginService.isLoggedIn();
-    if (isLogged) {
-      if (state.url === 'admin') {
-
-        this.router.navigate(['admin']);
-        return false;
-      }
-      return true;
+  canActivate(): boolean | UrlTree {
+    if (!this.loginService.isLoggedIn()) {
+      return this.router.createUrlTree(['/login']);
     }
 
-    this.router.navigate(['user-dashboard']);
-    return false;
-  }
+    const user = this.loginService.getUser();
 
+    if (user?.authorities?.[0]?.authority !== ROLES.ADMIN) {
+      return this.router.createUrlTree(['/user-dashboard']);
+    }
+
+    return true;
+  }
 }

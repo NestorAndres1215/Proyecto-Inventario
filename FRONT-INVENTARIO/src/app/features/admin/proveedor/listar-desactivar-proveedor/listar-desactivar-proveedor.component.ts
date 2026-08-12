@@ -1,17 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MENSAJES, TITULO_MESAJES } from 'src/app/core/constants/messages';
+import { firstValueFrom } from 'rxjs';
+
 import { AlertService } from 'src/app/core/services/alert.service';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-desactivar-proveedor',
   templateUrl: './listar-desactivar-proveedor.component.html',
-  styleUrls: ['./listar-desactivar-proveedor.component.css']
+  styleUrls: ['./listar-desactivar-proveedor.component.css'],
 })
 export class ListarDesactivarProveedorComponent implements OnInit {
-
   nombre: string = '';
 
   proveedores: any[] = [];
@@ -22,34 +21,38 @@ export class ListarDesactivarProveedorComponent implements OnInit {
     { clave: 'telefono', etiqueta: 'Teléfono' },
     { clave: 'ruc', etiqueta: 'RUC' },
     { clave: 'email', etiqueta: 'Correo' },
-    { clave: 'direccion', etiqueta: 'Dirección' }
+    { clave: 'direccion', etiqueta: 'Dirección' },
   ];
 
   botonesConfig = {
     ver: true,
-    activar: true
+    activar: true,
   };
 
   constructor(
-    private alertService:AlertService,
+    private alertService: AlertService,
     private proveedorService: ProveedorService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.obtenerProveedoresDesactivados();
   }
 
-  obtenerProveedoresDesactivados() {
-    this.proveedorService.listarProveedoresDesactivados().subscribe({
-      next: (data: any[]) => {
-        this.proveedoresOriginal = data;
-        this.proveedores = data;
-      },
-    });
+  async obtenerProveedoresDesactivados(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.proveedorService.listarProveedoresDesactivados(),
+      );
+
+      this.proveedoresOriginal = data;
+      this.proveedores = data;
+    } catch (error) {
+      console.error('Error al obtener proveedores desactivados:', error);
+    }
   }
 
-  buscarPorNombre() {
+  buscarPorNombre(): void {
     const valor = this.nombre.trim().toLowerCase();
 
     if (!valor) {
@@ -57,9 +60,10 @@ export class ListarDesactivarProveedorComponent implements OnInit {
       return;
     }
 
-    this.proveedores = this.proveedoresOriginal.filter(p =>
-      p.nombre?.toLowerCase().includes(valor) ||
-      p.ruc?.toLowerCase().includes(valor)
+    this.proveedores = this.proveedoresOriginal.filter(
+      (p) =>
+        p.nombre?.toLowerCase().includes(valor) ||
+        p.ruc?.toLowerCase().includes(valor),
     );
   }
 
@@ -67,14 +71,24 @@ export class ListarDesactivarProveedorComponent implements OnInit {
     return ['/admin/proveedor/detalle', item.proveedorId];
   }
 
-  activarProveedor(item: any) {
-    this.proveedorService.activarProveedor(item.proveedorId).subscribe({
-      next: () => {
-         this.alertService.error(TITULO_MESAJES.ACTIVADO, MENSAJES.ACTIVADO);
-        this.obtenerProveedoresDesactivados();
-        this.router.navigate(['/admin/proveedor']);
-      },
-    });
+  async activarProveedor(item: any): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.proveedorService.activarProveedor(item.proveedorId),
+      );
+
+      this.alertService.aceptacion(
+        'Proveedor activado',
+        'El proveedor fue activado correctamente.',
+      );
+
+      await this.obtenerProveedoresDesactivados();
+      await this.router.navigate(['/admin/proveedor']);
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'Ocurrió un error al activar el proveedor.',
+      );
+    }
   }
 }
-

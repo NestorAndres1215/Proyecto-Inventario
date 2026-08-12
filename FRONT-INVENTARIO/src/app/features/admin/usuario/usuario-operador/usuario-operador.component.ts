@@ -1,16 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { MENSAJES, TITULO_MESAJES } from 'src/app/core/constants/messages';
+
 import { AlertService } from 'src/app/core/services/alert.service';
 import { ReportesService } from 'src/app/core/services/reportes.service';
 
 import { UsuarioService } from 'src/app/core/services/usuario.service';
-
+import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-usuario-operador',
   templateUrl: './usuario-operador.component.html',
-  styleUrls: ['./usuario-operador.component.css']
+  styleUrls: ['./usuario-operador.component.css'],
 })
 export class UsuarioOperadorComponent implements OnInit {
   usuarioRoles: any[] = [];
@@ -19,12 +19,13 @@ export class UsuarioOperadorComponent implements OnInit {
     private usuarioRolService: UsuarioService,
     private alertService: AlertService,
     private router: Router,
-    private reporteSalida: ReportesService) { }
+    private reporteSalida: ReportesService,
+  ) {}
 
   ngOnInit(): void {
     this.obtenerUsuarioRoles();
   }
-  
+
   botonesConfigTable = {
     ver: true,
     desactivar: true,
@@ -34,20 +35,16 @@ export class UsuarioOperadorComponent implements OnInit {
     this.router.navigate(['/admin/usuario', usuarioRol.id]);
   }
 
-  obtenerUsuarioRoles(): void {
-    this.usuarioRolService.obtenerUsuariosNormalesActivos()
-      .subscribe({
-        next: (usuarioRoles: any[]) => {
-          this.usuarioRoles = usuarioRoles;
-        },
-      });
-  }
-
+async obtenerUsuarioRoles(): Promise<void> {
+  this.usuarioRoles = await firstValueFrom(
+    this.usuarioRolService.obtenerUsuariosNormalesActivos(),
+  );
+}
   columnas = [
     { etiqueta: 'Nombre', clave: 'nombre' },
     { etiqueta: 'Apellido', clave: 'apellido' },
     { etiqueta: 'Correo', clave: 'email' },
-    { etiqueta: 'Telefono', clave: 'telefono' }
+    { etiqueta: 'Telefono', clave: 'telefono' },
   ];
 
   pageSize = 3;
@@ -58,31 +55,49 @@ export class UsuarioOperadorComponent implements OnInit {
     this.pageSize = event.pageSize;
   }
 
-  desactivarUsuario(usuarioRolId: any): void {
-    this.usuarioRolService.desactivarUsuario(usuarioRolId)
-      .subscribe({
-        next: () => {
-          this.alertService.advertencia(TITULO_MESAJES.ACTIVADO, MENSAJES.ACTIVADO);
-          this.obtenerUsuarioRoles();
-        },
-        error: (error: any) => {
-          this.alertService.error(TITULO_MESAJES.ERROR_TITULO, error.error.message);
-        }
-      });
+  async desactivarUsuario(usuarioRolId: any): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.usuarioRolService.desactivarUsuario(usuarioRolId),
+      );
+
+      this.alertService.advertencia(
+        'Usuario desactivado',
+        'El usuario fue desactivado correctamente',
+      );
+
+      this.obtenerUsuarioRoles();
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'Ocurrió un error al desactivar el usuario.',
+      );
+    }
   }
 
-  descargarPDF() {
-    this.reporteSalida.descargarUsuarioOperador().subscribe((data: Blob) => {
-      const blob = new Blob([data], { type: 'application/pdf' });
+  async descargarPDF(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.reporteSalida.descargarUsuarioOperador(),
+      );
+
+      const blob = new Blob([data], {
+        type: 'application/pdf',
+      });
+
       const urlBlob = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+
       a.href = urlBlob;
       a.download = 'informe_detalle_salidas_productos.pdf';
-      a.style.display = 'none';
-      document.body.appendChild(a);
       a.click();
+
       window.URL.revokeObjectURL(urlBlob);
-      document.body.removeChild(a);
-    });
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'No se pudo descargar el PDF.',
+      );
+    }
   }
 }

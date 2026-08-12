@@ -8,41 +8,40 @@ import { LoginService } from 'src/app/core/services/login.service';
   styleUrls: ['./navbar-usuario.component.css']
 })
 export class NavbarUsuarioComponent implements OnInit {
-  
-  isActive(path: string): boolean {
-    return this.router.url === path;
-  }
 
   isLoggedIn = false;
   user: any = null;
   contenido: any;
+  status = false;
 
-  constructor(public login: LoginService, private router: Router) { }
+  constructor(
+    private readonly loginService: LoginService,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.isLoggedIn = this.login.isLoggedIn();
-    this.user = this.login.getUser();
-    this.login.loginStatusSubject.asObservable().subscribe(
-      data => {
-        this.isLoggedIn = this.login.isLoggedIn();
-        this.user = this.login.getUser();
-      }
-    )
+    this.cargarUsuario();
   }
 
-  logout() {
-    this.login.logout();
-    window.location.href = '';
+  isActive(path: string): boolean {
+    return this.router.url === path;
+  }
+
+  private cargarUsuario(): void {
+    this.isLoggedIn = this.loginService.isLoggedIn();
+    this.user = this.loginService.getUser();
+  }
+
+  logout(): void {
+    this.loginService.logout();
+    this.router.navigate(['/login']);
   }
 
   hayContenidoEnPagina(): boolean {
-
     return !!this.contenido;
   }
 
-  status = false;
-  addToggle() {
+  addToggle(): void {
     this.status = !this.status;
   }
-
 }

@@ -3,11 +3,11 @@ export interface DetalleEntrada {
   cantidad: number | null;
   producto: {
     productoId: string;
-    nombre?: string; 
+    nombre?: string;
   };
   usuario: {
     id: string;
-    username?: string; 
+    username?: string;
   };
   entrada: {
     fechaEntrada: string;

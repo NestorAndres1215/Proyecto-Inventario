@@ -1,25 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { firstValueFrom } from 'rxjs';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
+import { AlertService } from 'src/app/core/services/alert.service';
 
 @Component({
   selector: 'app-actualizar-proveedor',
   templateUrl: './actualizar-proveedor.component.html',
-  styleUrls: ['./actualizar-proveedor.component.css']
+  styleUrls: ['./actualizar-proveedor.component.css'],
 })
 export class ActualizarProveedorComponent implements OnInit {
-
   proveedorForm!: FormGroup;
   proveedorId: number = 0;
 
   constructor(
     private fb: FormBuilder,
     private proveedorService: ProveedorService,
+    private alertService: AlertService,
     private router: Router,
-    private route: ActivatedRoute
-  ) { }
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.proveedorId = this.route.snapshot.params['proveedorId'];
@@ -29,58 +30,69 @@ export class ActualizarProveedorComponent implements OnInit {
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9}$/)]],
       direccion: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      ruc: ['', [Validators.required, Validators.pattern(/^[0-9]{11}$/)]]
+      ruc: ['', [Validators.required, Validators.pattern(/^[0-9]{11}$/)]],
     });
 
-    this.proveedorService.obtenerProveedorPorId(this.proveedorId)
-      .subscribe({
-        next: (data: any) => {
-          this.proveedorForm.patchValue(data);
-        },
-        error: (error: any) => console.error(error)
-      });
+    this.cargarProveedor();
   }
 
-  actualizarProveedor(): void {
+  private async cargarProveedor(): Promise<void> {
+    try {
+      const proveedor = await firstValueFrom(
+        this.proveedorService.obtenerProveedorPorId(this.proveedorId),
+      );
+
+      this.proveedorForm.patchValue(proveedor);
+    } catch (error) {
+      console.error('Error al cargar proveedor:', error);
+    }
+  }
+
+  async actualizarProveedor(): Promise<void> {
     if (this.proveedorForm.invalid) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Campos incompletos',
-        text: 'Por favor, complete todos los campos correctamente.'
-      });
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Por favor, complete todos los campos correctamente.',
+      );
+
+      this.proveedorForm.markAllAsTouched();
       return;
     }
 
-    this.proveedorService.actualizarProveedor(this.proveedorId, this.proveedorForm.value)
-      .subscribe({
-        next: (respuesta: any) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Proveedor actualizado',
-            text: 'El proveedor se ha actualizado correctamente.'
-          }).then(() => this.router.navigate(['/admin/proveedor']));
-        },
-        error: (error: any) => {
-          console.error('Error al actualizar el proveedor:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al actualizar',
-            text: 'Ocurrió un error al actualizar el proveedor. Inténtelo de nuevo.'
-          });
-        }
-      });
+    try {
+      await firstValueFrom(
+        this.proveedorService.actualizarProveedor(
+          this.proveedorId,
+          this.proveedorForm.value,
+        ),
+      );
+
+      this.alertService.aceptacion(
+        'Proveedor actualizado',
+        'El proveedor se ha actualizado correctamente.',
+      );
+
+      await this.router.navigate(['/admin/proveedor']);
+    } catch (error: any) {
+      console.error('Error al actualizar el proveedor:', error);
+
+      this.alertService.error(
+        'Error al actualizar',
+        error.error?.message ?? 'Ocurrió un error al actualizar el proveedor.',
+      );
+    }
   }
 
-  limitarLongitud(event: any, maxLength: number) {
+  limitarLongitud(event: any, maxLength: number): void {
     const input = event.target;
+
     if (input.value.length > maxLength) {
       input.value = input.value.slice(0, maxLength);
     }
   }
 
-  validarNumeroPositivo(event: Event) {
+  validarNumeroPositivo(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/[^0-9]/g, '');
   }
-
 }

@@ -3,11 +3,9 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'app-tabla',
   templateUrl: './tabla.component.html',
-  styleUrls: ['./tabla.component.css']
+  styleUrls: ['./tabla.component.css'],
 })
-export class TablaComponent  {
-
-
+export class TablaComponent {
   @Input() icono: string = '';
   @Input() titulo: string = '';
   @Input() columnas: { etiqueta: string; clave: string }[] = [];
@@ -28,7 +26,7 @@ export class TablaComponent  {
   @Input() onDesactivar!: (fila: any) => void;
   @Input() onActivar!: (fila: any) => void;
   @Input() onSuspender!: (fila: any) => void;
-    @Input() onListado!: (fila: any) => void;
+  @Input() onListado!: (fila: any) => void;
   @Input() onInhabilitar!: (fila: any) => void;
   @Input() onBloquear!: (fila: any) => void;
   @Input() onImprimir!: (fila: any) => void;
@@ -43,7 +41,7 @@ export class TablaComponent  {
       this.botonesConfig.inhabilitar ||
       this.botonesConfig.bloquear ||
       this.botonesConfig.imprimir ||
-            this.botonesConfig.listado ||
+      this.botonesConfig.listado ||
       this.botonesConfig.ver ||
       this.botonesConfig.cancelar
     );

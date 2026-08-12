@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Route, Router } from '@angular/router';
-import {
-  LoginService
-} from 'src/app/core/services/login.service';
+import { Router } from '@angular/router';
+import { LoginService } from 'src/app/core/services/login.service';
+
 @Component({
   selector: 'app-navbar-admin',
   templateUrl: './navbar-admin.component.html',
@@ -10,41 +9,39 @@ import {
 })
 export class NavbarAdminComponent implements OnInit {
 
+  isLoggedIn = false;
+  user: any = null;
+  contenido: any;
+  status = false;
+
+  constructor(
+    private readonly loginService: LoginService,
+    private readonly router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarUsuario();
+  }
+
   isActive(path: string): boolean {
     return this.router.url === path;
   }
 
-  isLoggedIn = false;
-  user: any = null;
-  contenido: any;
-
-  constructor(public login: LoginService, private router: Router) { }
-
-  ngOnInit(): void {
-    this.isLoggedIn = this.login.isLoggedIn();
-    this.user = this.login.getUser();
-    this.login.loginStatusSubject.asObservable().subscribe(
-      data => {
-        this.isLoggedIn = this.login.isLoggedIn();
-        this.user = this.login.getUser();
-      }
-    )
-
+  private cargarUsuario(): void {
+    this.isLoggedIn = this.loginService.isLoggedIn();
+    this.user = this.loginService.getUser();
   }
 
-  public logout() {
-    this.login.logout();
-    window.location.href = '';
+  logout(): void {
+    this.loginService.logout();
+    this.router.navigate(['/login']);
   }
 
   hayContenidoEnPagina(): boolean {
     return !!this.contenido;
   }
 
-  status = false;
-  
-  addToggle() {
+  addToggle(): void {
     this.status = !this.status;
   }
-
 }

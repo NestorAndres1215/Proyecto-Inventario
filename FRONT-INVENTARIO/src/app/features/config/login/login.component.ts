@@ -5,9 +5,9 @@ import { LoginService } from '../../../core/services/login.service';
 import { ROLES } from 'src/app/core/constants/rol';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertService } from 'src/app/core/services/alert.service';
-import { MENSAJES, TITULO_MESAJES } from 'src/app/core/constants/messages';
-import { LoginData } from 'src/app/core/constants/auth';
 
+import { LoginData } from 'src/app/core/constants/auth';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +15,6 @@ import { LoginData } from 'src/app/core/constants/auth';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-
   hidePassword = true;
   formulario!: FormGroup;
 
@@ -23,10 +22,11 @@ export class LoginComponent implements OnInit {
     private loginService: LoginService,
     private alertService: AlertService,
     private fb: FormBuilder,
-    private router: Router,) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
-    this.initForm()
+    this.initForm();
   }
 
   verContraActual = false;
@@ -37,37 +37,48 @@ export class LoginComponent implements OnInit {
   initForm() {
     this.formulario = this.fb.group({
       login: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
     });
   }
 
-  operar(): void {
-
+  async operar(): Promise<void> {
     if (this.formulario.invalid) {
-      this.alertService.advertencia(TITULO_MESAJES.CAMPOS_INCOMPLETOS_TITULO, MENSAJES.CAMPOS_INCOMPLETOS_MENSAJE);
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Ingrese su usuario y contraseña.',
+      );
       this.formulario.markAllAsTouched();
       return;
     }
-    const login: LoginData = {
-      login: this.formulario.get('login')?.value,
-      password: this.formulario.get('password')?.value,
-    };
-    this.loginService.generateToken(login).subscribe({
-      next: (data: any) => {
-        this.loginService.loginUser(data.token);
-        this.loginService.getCurrentUser().subscribe({
-          next: (user: any) => {
-            this.loginService.setUser(user);
-            const rol = user.authorities[0].authority
-            this.navigateByRole(rol);
-          },
-          error: () => this.loginService.logout(),
-        });
-      },
-      error: (error) => {
-        console.log(error)
-      },
-    });
+
+    try {
+      const login: LoginData = this.formulario.getRawValue();
+
+      const data: any = await firstValueFrom(
+        this.loginService.generateToken(login),
+      );
+
+      this.loginService.loginUser(data.token);
+
+      const user: any = await firstValueFrom(
+        this.loginService.getCurrentUser(),
+      );
+
+      this.loginService.setUser(user);
+console.log(user)
+      const rol = user.authorities?.[0]?.authority;
+      console.log(rol)
+      this.navigateByRole(rol);
+    } catch (error: any) {
+      console.error(error);
+
+      this.alertService.error(
+        'Inicio de sesión',
+        error?.error?.message ,
+      );
+
+      this.loginService.logout();
+    }
   }
 
   private navigateByRole(role: string): void {
@@ -83,8 +94,6 @@ export class LoginComponent implements OnInit {
         return;
     }
 
-    this.loginService.loginStatusSubjec.next(true);
+    this.loginService.loginStatusSubject.next(true);
   }
-
-
 }

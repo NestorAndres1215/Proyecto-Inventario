@@ -3,22 +3,23 @@ import { UsuarioService } from 'src/app/core/services/usuario.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Usuario } from 'src/app/core/models/usuario';
-import { MENSAJES, TITULO_MESAJES } from 'src/app/core/constants/messages';
+
 import { AlertService } from 'src/app/core/services/alert.service';
+import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-registrar-usuario-administrador',
   templateUrl: './registrar-usuario-administrador.component.html',
-  styleUrls: ['./registrar-usuario-administrador.component.css']
+  styleUrls: ['./registrar-usuario-administrador.component.css'],
 })
 export class RegistrarUsuarioAdministradorComponent implements OnInit {
   form!: FormGroup;
+
   constructor(
     private alertService: AlertService,
     private fb: FormBuilder,
     private router: Router,
     private userService: UsuarioService,
-  
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -31,18 +32,21 @@ export class RegistrarUsuarioAdministradorComponent implements OnInit {
       dni: ['', [Validators.required, Validators.maxLength(8)]],
       direccion: ['', Validators.required],
       fechaNacimiento: [''],
-      edad: ['']
+      edad: [''],
     });
   }
 
+  async formSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Por favor, complete todos los campos obligatorios.',
+      );
 
-  formSubmit() {
-
-    if (!this.form.valid) {
-      this.alertService.advertencia(TITULO_MESAJES.CAMPOS_INCOMPLETOS_TITULO, MENSAJES.CAMPOS_INCOMPLETOS_MENSAJE);
       this.form.markAllAsTouched();
       return;
     }
+
     const user: Usuario = {
       username: 'O' + this.form.value.dni,
       password: this.form.value.dni + 'O',
@@ -54,18 +58,23 @@ export class RegistrarUsuarioAdministradorComponent implements OnInit {
       direccion: this.form.value.direccion,
       fechaNacimiento: this.form.value.fechaNacimiento,
       edad: this.form.value.edad,
-      rol:'ADMIN'
+      rol: 'ADMIN',
     };
-    
-    this.userService.registrarAdmin(user).subscribe({
-      next: () => {
-        this.alertService.aceptacion(TITULO_MESAJES.REGISTRO_EXITOSO_TITULO, MENSAJES.REGISTRO_EXITOSO_MENSAJE);
-        this.router.navigate(['/admin/usuario/admin']);
-      },
-      error: (error) => {
-        this.alertService.error(TITULO_MESAJES.ERROR_TITULO, error.error.message);
-      },
-    });
-  }
 
+    try {
+      await firstValueFrom(this.userService.registrarAdmin(user));
+
+      this.alertService.aceptacion(
+        'Registro exitoso',
+        'El usuario se registró correctamente.',
+      );
+
+      this.router.navigate(['/admin/usuario/admin']);
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'Ocurrió un error al registrar el usuario.',
+      );
+    }
+  }
 }

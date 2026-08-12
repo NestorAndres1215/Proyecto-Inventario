@@ -1,13 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ALERT_MESSAGES, DetalleEntrada, Producto, Usuario } from 'src/app/core/models/entrada';
+import { firstValueFrom } from 'rxjs';
+import {
+  ALERT_MESSAGES,
+  DetalleEntrada,
+  Producto,
+  Usuario,
+} from 'src/app/core/models/entrada';
+import { AlertService } from 'src/app/core/services/alert.service';
 import { EntradaService } from 'src/app/core/services/entrada.service';
 import { LoginService } from 'src/app/core/services/login.service';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import Swal from 'sweetalert2';
-
-
 
 @Component({
   selector: 'app-registrar-entrada',
@@ -26,12 +31,13 @@ export class RegistrarEntradaComponent implements OnInit {
     private readonly productoService: ProductoService,
     private readonly loginService: LoginService,
     private readonly entradaService: EntradaService,
-    private readonly router: Router
-  ) { }
+    private readonly router: Router,
+    private readonly alertService: AlertService,
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.inicializarFormulario();
-    this.obtenerProductos();
+    await this.obtenerProductos();
     this.obtenerUsuario();
   }
 
@@ -44,16 +50,20 @@ export class RegistrarEntradaComponent implements OnInit {
     });
   }
 
-  private obtenerProductos(): void {
-    this.productoService.listarProductosActivos().subscribe({
-      next: (data: Producto[]) => (this.producto = data),
-      error: (err) => console.error('Error al obtener productos:', err),
-    });
+  private async obtenerProductos(): Promise<void> {
+    try {
+      this.producto = await firstValueFrom(
+        this.productoService.listarProductosActivos(),
+      );
+    } catch (error) {
+      this.alertService.error('Error', 'No se pudieron cargar los productos.');
+    }
   }
 
   private obtenerUsuario(): void {
     this.actualizarUsuario();
-    this.loginService.loginStatusSubject.asObservable().subscribe(() => {
+
+    this.loginService.loginStatusSubject.subscribe(() => {
       this.actualizarUsuario();
     });
   }
@@ -65,46 +75,76 @@ export class RegistrarEntradaComponent implements OnInit {
 
   agregarProducto(): void {
     if (this.detalleEntradaForm.invalid) {
-      Swal.fire('Error', ALERT_MESSAGES.fillFields, 'error');
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Complete todos los campos antes de agregar el producto.',
+      );
+      this.detalleEntradaForm.markAllAsTouched();
       return;
     }
 
-    const detalle: DetalleEntrada = {
-      producto: { productoId: this.detalleEntradaForm.value.productoId },
-      descripcion: this.detalleEntradaForm.value.descripcion,
-      cantidad: this.detalleEntradaForm.value.cantidad,
-      usuario: { id: this.user!.id },
-      entrada: { fechaEntrada: this.detalleEntradaForm.value.fechaEntrada },
-    };
+    console.log(this.user)
+const detalle: DetalleEntrada = {
+  producto: { productoId: this.detalleEntradaForm.value.productoId },
+  descripcion: this.detalleEntradaForm.value.descripcion,
+  cantidad: this.detalleEntradaForm.value.cantidad,
+  usuario: { id: this.user!.id },
+  entrada: {
+    fechaEntrada: this.detalleEntradaForm.value.fechaEntrada,
+    usuario: { id: this.user!.id }
+  }
+};
 
     this.listaDetalleEntrada.push(detalle);
     this.detalleEntradaForm.reset();
   }
 
-  enviarEntrada(): void {
+  async enviarEntrada(): Promise<void> {
     if (this.listaDetalleEntrada.length === 0) {
-      Swal.fire('Error', ALERT_MESSAGES.noRecords, 'error');
+      this.alertService.advertencia(
+        'Sin registros',
+        'Agregue al menos un producto antes de enviar la entrada.',
+      );
       return;
     }
 
-    // Asegura que todos los detalles tengan el usuario
-    this.listaDetalleEntrada.forEach((d) => (d.usuario.id = this.user!.id));
+    try {
+      if (!this.user) {
+        this.alertService.error(
+          'Error',
+          'No se encontró el usuario autenticado.',
+        );
+        return;
+      }
 
-    this.entradaService.crearEntradaConDetalles(this.listaDetalleEntrada).subscribe({
-      next: () => {
-        Swal.fire('Éxito', ALERT_MESSAGES.sendSuccess, 'success');
-        this.listaDetalleEntrada = [];
-        this.detalleEntradaForm.reset();
-        this.router.navigate(['/admin/entradas']);
-      },
-      error: (err) => {
-        console.error('Error al enviar entrada:', err);
-        Swal.fire('Error', ALERT_MESSAGES.sendError, 'error');
-      },
-    });
+      const usuario = this.user;
+
+      this.listaDetalleEntrada.forEach((detalle) => {
+        detalle.usuario.id = usuario.id;
+      });
+
+      await firstValueFrom(
+        this.entradaService.crearEntradaConDetalles(this.listaDetalleEntrada),
+      );
+
+      this.alertService.aceptacion(
+        'Éxito',
+        'La entrada se registró correctamente.',
+      );
+
+      this.listaDetalleEntrada = [];
+      this.detalleEntradaForm.reset();
+
+      this.router.navigate(['/admin/entradas']);
+    } catch (error) {
+      console.error('Error al enviar entrada:', error);
+
+      this.alertService.error('Error', 'No se pudo registrar la entrada.');
+    }
   }
 
-  // Solo permite números positivos
+
+
   guardarValor(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/[^0-9]/g, '');

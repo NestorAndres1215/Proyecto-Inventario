@@ -8,7 +8,7 @@ import { UsuarioService } from 'src/app/core/services/usuario.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Usuario } from 'src/app/core/models/usuario';
 import { AlertService } from 'src/app/core/services/alert.service';
-import { MENSAJES, TITULO_MESAJES } from 'src/app/core/constants/messages';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-registrar-usuario-operador',
@@ -22,7 +22,7 @@ export class RegistrarUsuarioOperadorComponent implements OnInit {
     private alertService: AlertService,
     private router: Router,
     private userService: UsuarioService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -33,15 +33,17 @@ export class RegistrarUsuarioOperadorComponent implements OnInit {
       dni: ['', [Validators.required]],
       direccion: ['', Validators.required],
       fechaNacimiento: [''],
-      edad: ['']
+      edad: [''],
     });
   }
 
+  async formSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Por favor, complete todos los campos obligatorios.',
+      );
 
-  formSubmit() {
-    console.log(this.form.value)
-    if (!this.form.valid) {
-      this.alertService.advertencia(TITULO_MESAJES.CAMPOS_INCOMPLETOS_TITULO, MENSAJES.CAMPOS_INCOMPLETOS_MENSAJE);
       this.form.markAllAsTouched();
       return;
     }
@@ -57,18 +59,23 @@ export class RegistrarUsuarioOperadorComponent implements OnInit {
       direccion: this.form.value.direccion,
       fechaNacimiento: this.form.value.fechaNacimiento,
       edad: this.form.value.edad,
-      rol: 'NORMAL'
+      rol: 'NORMAL',
     };
-    this.userService.registrarNormal(user).subscribe({
-      next: () => {
-        this.alertService.aceptacion(TITULO_MESAJES.REGISTRO_EXITOSO_TITULO, MENSAJES.REGISTRO_EXITOSO_MENSAJE);
-        this.router.navigate(['/admin/usuario/operador']);
-      },
-      error: (error) => {
-        this.alertService.error(TITULO_MESAJES.ERROR_TITULO, error.error.message);
-      },
-    });
 
+    try {
+      await firstValueFrom(this.userService.registrarNormal(user));
+
+      this.alertService.aceptacion(
+        'Registro exitoso',
+        'El usuario se registró correctamente.',
+      );
+
+      this.router.navigate(['/admin/usuario/operador']);
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'Ocurrió un error al registrar el usuario.',
+      );
+    }
   }
-
 }

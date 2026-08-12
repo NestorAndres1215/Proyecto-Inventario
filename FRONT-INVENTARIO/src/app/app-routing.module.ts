@@ -1,4 +1,3 @@
-
 import { DashboardComponent } from './features/admin/home-admin/home-admin.component';
 import { LoginComponent } from './features/config/login/login.component';
 import { HomeComponent } from './features/config/home/home.component';
@@ -8,13 +7,9 @@ import { PrincipalComponent } from './features/admin/principal/principal.compone
 import { PerfilComponent } from './features/admin/perfil/perfil.component';
 import { ProveedorComponent } from './features/admin/proveedor/proveedor.component';
 import { ProductosComponent } from './features/admin/productos/productos.component';
-
 import { ConfiguracionComponent } from './features/admin/configuracion/configuracion.component';
-
-
 import { CrearProductoComponent } from './features/admin/productos/crear-producto/crear-producto.component';
 import { ActualizarProductoComponent } from './features/admin/productos/actualizar-producto/actualizar-producto.component';
-
 import { CrearProveedorComponent } from './features/admin/proveedor/crear-proveedor/crear-proveedor.component';
 import { ActualizarProveedorComponent } from './features/admin/proveedor/actualizar-proveedor/actualizar-proveedor.component';
 import { HomeUsuarioComponent } from './features/usuario/home-usuario/home-usuario.component';
@@ -23,24 +18,19 @@ import { RegistrarUsuarioOperadorComponent } from './features/admin/usuario/usua
 import { DetalleUsuarioComponent } from './features/admin/usuario/detalle-usuario/detalle-usuario.component';
 import { DetalleProveedorComponent } from './features/admin/proveedor/detalle-proveedor/detalle-proveedor.component';
 import { DetalleProductoComponent } from './features/admin/productos/detalle-producto/detalle-producto.component';
-
 import { PrincipalUsuarioComponent } from './features/usuario/principal-usuario/principal-usuario.component';
 import { InventarioUsuarioComponent } from './pages/usuario/inventario-usuario/inventario-usuario.component';
-
-import { ConfiguracionUsuarioComponent } from './pages/usuario/configuracion-usuario/configuracion-usuario.component';
-
+import { ConfiguracionUsuarioComponent } from './features/usuario/configuracion-usuario/configuracion-usuario.component';
 import { EntradasComponent } from './pages/admin/entradas/entradas.component';
 import { RegistrarEntradaComponent } from './pages/admin/entradas/registrar-entrada/registrar-entrada.component';
 import { DetalleEntradaComponent } from './pages/admin/entradas/detalle-entrada/detalle-entrada.component';
 import { SalidasComponent } from './features/admin/salidas/salidas.component';
 import { RegistrarSalidasComponent } from './features/admin/salidas/registrar-salidas/registrar-salidas.component';
 import { DetalleSalidasComponent } from './features/admin/salidas/detalle-salidas/detalle-salidas.component';
-
 import { EntradaUsuarioComponent } from './pages/usuario/entrada-usuario/entrada-usuario.component';
 import { SalidaUsuarioComponent } from './features/usuario/salida-usuario/salida-usuario.component';
 import { ActualizarUsuarioComponent } from './features/admin/usuario/actualizar-usuario/actualizar-usuario.component';
 import { ResponderCorreoComponent } from './features/admin/reclamos/responder-correo/responder-correo.component';
-import { ActualizarUsuarioUsuarioComponent } from './pages/usuario/actualizar-usuario-usuario/actualizar-usuario-usuario.component';
 import { DetalleEntradaUsuarioComponent } from './pages/usuario/entrada-usuario/detalle-entrada-usuario/detalle-entrada-usuario.component';
 import { ActualizarInventarioComponent } from './pages/usuario/inventario-usuario/actualizar-inventario/actualizar-inventario.component';
 import { GuardarInventarioComponent } from './pages/usuario/inventario-usuario/guardar-inventario/guardar-inventario.component';
@@ -52,20 +42,19 @@ import { UsuarioAdministradorComponent } from './features/admin/usuario/usuario-
 import { UsuarioOperadorComponent } from './features/admin/usuario/usuario-operador/usuario-operador.component';
 import { ListaUsuarioOperadorDesactivadosComponent } from './features/admin/usuario/usuario-operador/lista-usuario-operador-desactivados/lista-usuario-operador-desactivados.component';
 import { RegistarSalidaUsuarioComponent } from './features/usuario/salida-usuario/registar-salida-usuario/registar-salida-usuario.component';
+import { ActualizarUsuarioUsuarioComponent } from './pages/usuario/actualizar-usuario-usuario/actualizar-usuario-usuario.component';
 
 const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
 
   {
     path: 'login',
     component: LoginComponent,
     pathMatch: 'full',
-
-
   },
   {
     path: 'admin',
@@ -115,7 +104,7 @@ const routes: Routes = [
       {
         path: 'proveedor/crear-proveedor',
         component: CrearProveedorComponent,
-      },    
+      },
       {
         path: 'proveedor/detalle/:proveedorId',
         component: DetalleProveedorComponent,
@@ -124,7 +113,6 @@ const routes: Routes = [
         path: 'proveedor/:proveedorId',
         component: ActualizarProveedorComponent,
       },
-  
 
       {
         path: 'producto',
@@ -133,7 +121,8 @@ const routes: Routes = [
       {
         path: 'producto/crear-producto',
         component: CrearProductoComponent,
-      },      {
+      },
+      {
         path: 'producto/detalle/:productoId',
         component: DetalleProductoComponent,
       },
@@ -157,7 +146,8 @@ const routes: Routes = [
       {
         path: 'usuario/registrar-usuario-operador',
         component: RegistrarUsuarioOperadorComponent,
-      }, {
+      },
+      {
         path: 'usuario/usuarios-admin-desactivados',
         component: ListaUsuarioAdministradorDesactivadosComponent,
       },
@@ -170,25 +160,21 @@ const routes: Routes = [
         component: DetalleUsuarioComponent,
       },
 
-
       {
         path: 'configuracion',
-        component: ConfiguracionComponent
-      }, {
+        component: ConfiguracionComponent,
+      },
+      {
         path: 'configuracion/reclamos/:reclamoId',
         component: ResponderCorreoComponent,
       },
       {
         path: 'configuracion/actualizar-usuario/:id',
-        component: ActualizarUsuarioComponent
-      }
-
-
-
-    ]
-
-
-  }, {
+        component: ActualizarUsuarioComponent,
+      },
+    ],
+  },
+  {
     path: 'user-dashboard',
     component: HomeUsuarioComponent,
 
@@ -197,8 +183,6 @@ const routes: Routes = [
       {
         path: '',
         component: PrincipalUsuarioComponent,
-
-
       },
       {
         path: 'salidas/detalle/:detalleSalidaId',
@@ -233,10 +217,9 @@ const routes: Routes = [
         component: RegistarSalidaUsuarioComponent,
       },
 
-
       {
         path: 'configuracion',
-        component: ConfiguracionUsuarioComponent
+        component: ConfiguracionUsuarioComponent,
       },
 
       {
@@ -245,15 +228,14 @@ const routes: Routes = [
       },
       {
         path: 'configuracion/actualizar-usuario/:id',
-        component: ActualizarUsuarioUsuarioComponent
-      }
-    ]
-  }
-
+        component: ActualizarUsuarioUsuarioComponent,
+      },
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

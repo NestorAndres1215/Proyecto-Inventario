@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AlertService } from 'src/app/core/services/alert.service';
 import { EntradaService } from 'src/app/core/services/entrada.service';
-
-// Opcional: Mensajes constantes
-const ERROR_MESSAGES = {
-  loadFail: 'No se pudo cargar la entrada. Intente nuevamente.',
-};
 
 @Component({
   selector: 'app-detalle-entrada',
@@ -14,34 +11,37 @@ const ERROR_MESSAGES = {
 })
 export class DetalleEntradaComponent implements OnInit {
   detalleEntrada: any = null;
-  detalleEntradaId: number = 0;
+  detalleEntradaId = 0;
 
   constructor(
     private readonly entradaService: EntradaService,
+    private readonly alertService: AlertService,
     private readonly router: Router,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
   ) {}
 
-  ngOnInit(): void {
-    this.detalleEntradaId = Number(this.route.snapshot.paramMap.get('detalleEntradaId'));
+  async ngOnInit(): Promise<void> {
+    this.detalleEntradaId = Number(
+      this.route.snapshot.paramMap.get('detalleEntradaId'),
+    );
+
     if (!this.detalleEntradaId) {
-      // Redirigir o mostrar error si el ID no es válido
-      this.router.navigate(['/entradas']);
+      this.router.navigate(['/admin/entradas']);
       return;
     }
 
-    this.cargarEntrada(this.detalleEntradaId);
+    await this.cargarEntrada(this.detalleEntradaId);
   }
 
-  private cargarEntrada(id: number): void {
-    this.entradaService.obtenerEntradaPorId(id).subscribe({
-      next: (data) => {
-        this.detalleEntrada = data;
-      },
-      error: (err) => {
-        console.error('Error al cargar entrada:', err);
-        alert(ERROR_MESSAGES.loadFail); // O usar MatSnackBar si tienes
-      },
-    });
+  private async cargarEntrada(id: number): Promise<void> {
+    try {
+      this.detalleEntrada = await firstValueFrom(
+        this.entradaService.obtenerEntradaPorId(id),
+      );
+    } catch (error) {
+      this.alertService.error('Error', 'No se pudo cargar la entrada.');
+
+      this.router.navigate(['/admin/entradas']);
+    }
   }
 }

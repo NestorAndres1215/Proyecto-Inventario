@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
+import { AlertService } from 'src/app/core/services/alert.service';
 
 @Component({
   selector: 'app-detalle-proveedor',
   templateUrl: './detalle-proveedor.component.html',
-  styleUrls: ['./detalle-proveedor.component.css']
+  styleUrls: ['./detalle-proveedor.component.css'],
 })
 export class DetalleProveedorComponent implements OnInit {
-
   proveedor: any;
   proveedorId: number = 0;
   datosUsuario: { clave: string; valor: any }[] = [];
 
   constructor(
     private proveedorService: ProveedorService,
-    private router: Router,
-    private route: ActivatedRoute
+    private alertService: AlertService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
@@ -24,28 +26,31 @@ export class DetalleProveedorComponent implements OnInit {
     this.obtenerProveedorPorId(this.proveedorId);
   }
 
-  obtenerProveedorPorId(proveedorId: number): void {
-    this.proveedorService.obtenerProveedorPorId(proveedorId).subscribe(
-      (data) => {
-        this.proveedor = data;
+  async obtenerProveedorPorId(proveedorId: number): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.proveedorService.obtenerProveedorPorId(proveedorId),
+      );
 
-        // 👇 aquí armamos los datos para app-tabla-datos
-       this.datosUsuario = [
-  { clave: 'Código', valor: this.proveedor.proveedorId },
-  { clave: 'Nombre', valor: this.proveedor.nombre },
-  { clave: 'Teléfono', valor: this.proveedor.telefono },
-  { clave: 'Correo', valor: this.proveedor.email },
-  { clave: 'RUC', valor: this.proveedor.ruc },
-  { clave: 'Dirección', valor: this.proveedor.direccion },
-  { clave: 'Estado', valor: this.proveedor.estado ? 'Activo' : 'Desactivado' }
-];
+      this.proveedor = data;
 
-
-        console.log(this.datosUsuario);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+      this.datosUsuario = [
+        { clave: 'Código', valor: data.proveedorId },
+        { clave: 'Nombre', valor: data.nombre },
+        { clave: 'Teléfono', valor: data.telefono },
+        { clave: 'Correo', valor: data.email },
+        { clave: 'RUC', valor: data.ruc },
+        { clave: 'Dirección', valor: data.direccion },
+        {
+          clave: 'Estado',
+          valor: data.estado ? 'Activo' : 'Desactivado',
+        },
+      ];
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'No se pudo obtener el proveedor.',
+      );
+    }
   }
 }

@@ -5,11 +5,6 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './entrada-usuario.component.html',
   styleUrls: ['./entrada-usuario.component.css']
 })
-export class EntradaUsuarioComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
+export class EntradaUsuarioComponent {
 
 }

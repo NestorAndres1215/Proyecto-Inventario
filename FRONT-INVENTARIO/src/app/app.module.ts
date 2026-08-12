@@ -51,7 +51,7 @@ import { UsuarioOperadorComponent } from './features/admin/usuario/usuario-opera
 
 import { InventarioUsuarioComponent } from './pages/usuario/inventario-usuario/inventario-usuario.component';
 import { PrincipalUsuarioComponent } from './features/usuario/principal-usuario/principal-usuario.component';
-import { ConfiguracionUsuarioComponent } from './pages/usuario/configuracion-usuario/configuracion-usuario.component';
+import { ConfiguracionUsuarioComponent } from './features/usuario/configuracion-usuario/configuracion-usuario.component';
 import { ListaUsuarioAdministradorDesactivadosComponent } from './features/admin/usuario/usuario-administrador/lista-usuario-administrador-desactivados/lista-usuario-administrador-desactivados.component';
 import { RegistrarUsuarioAdministradorComponent } from './features/admin/usuario/usuario-administrador/registrar-usuario-administrador/registrar-usuario-administrador.component';
 import { ListaUsuarioOperadorDesactivadosComponent } from './features/admin/usuario/usuario-operador/lista-usuario-operador-desactivados/lista-usuario-operador-desactivados.component';
@@ -63,8 +63,7 @@ import { DetalleProductoComponent } from './features/admin/productos/detalle-pro
 import { ReclamosComponent } from './features/admin/reclamos/reclamos.component';
 import { ListarInventarioComponent } from './pages/usuario/inventario-usuario/listar-inventario/listar-inventario.component';
 
-import { GoogleChartsModule } from 'angular-google-charts';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { EntradasComponent } from './pages/admin/entradas/entradas.component';
 import { RegistrarEntradaComponent } from './pages/admin/entradas/registrar-entrada/registrar-entrada.component';
 import { DetalleEntradaComponent } from './pages/admin/entradas/detalle-entrada/detalle-entrada.component';
@@ -122,33 +121,25 @@ import { RegistarSalidaUsuarioComponent } from './features/usuario/salida-usuari
     InventarioUsuarioComponent,
     PrincipalUsuarioComponent,
     ConfiguracionUsuarioComponent,
-
     ListaUsuarioAdministradorDesactivadosComponent,
     RegistrarUsuarioAdministradorComponent,
     ListaUsuarioOperadorDesactivadosComponent,
     RegistrarUsuarioOperadorComponent,
     DetalleUsuarioComponent,
-
     DetalleProveedorComponent,
     DetalleProductoComponent,
-
-
     ReclamosComponent,
     ListarInventarioComponent,
-
     EntradasComponent,
- 
     RegistrarEntradaComponent,
     DetalleEntradaComponent,
     SalidasComponent,
     RegistrarSalidasComponent,
     DetalleSalidasComponent,
-   
     SalidaUsuarioComponent,
     EntradaUsuarioComponent,
     ListarEntradasUsuarioComponent,
     ListarSalidaUsuarioComponent,
- 
     ActualizarUsuarioComponent,
     NosotrosComponent,
     ListarReclamoActivadosComponent,
@@ -165,10 +156,9 @@ import { RegistarSalidaUsuarioComponent } from './features/usuario/salida-usuari
     ButtonComponent,
     TituloComponent,
     TablaDatosComponent,
-    TablaComponent
+    TablaComponent,
   ],
   imports: [
-    GoogleChartsModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -195,11 +185,10 @@ import { RegistarSalidaUsuarioComponent } from './features/usuario/salida-usuari
     MatButtonToggleModule,
     MatProgressBarModule,
     MatPaginatorModule,
-    ReactiveFormsModule, 
-
+    ReactiveFormsModule,
   ],
 
   providers: [authInterceptorProviders],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

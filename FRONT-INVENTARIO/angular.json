@@ -19,7 +19,6 @@
           "options": {
             "outputPath": "dist/sistema-examenes-frontend",
             "index": "src/index.html",
-           
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
@@ -30,10 +29,11 @@
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
-              "./node_modules/bootstrap-grid-only-css/dist/css/bootstrap-grid.min.css"
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "./node_modules/@fortawesome/fontawesome-free/css/all.min.css"
             ],
             "scripts": [
-              
+              "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ]
           },
           "configurations": {
@@ -108,7 +108,6 @@
       }
     }
   },
-  "defaultProject": "sistema-examenes-frontend",
   "cli": {
     "analytics": "9e46452f-e3b7-40bb-968c-c389295d2dce"
   }

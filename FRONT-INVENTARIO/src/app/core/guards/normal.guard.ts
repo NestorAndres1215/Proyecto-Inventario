@@ -1,31 +1,27 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
-import { LoginService } from 'src/app/core/services/login.service';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { ROLES } from '../constants/rol';
-
+import { LoginService } from 'src/app/core/services/login.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NormalGuard implements CanActivate {
+
   constructor(
-    private loginService: LoginService,
-    private router: Router
+    private readonly loginService: LoginService,
+    private readonly router: Router
   ) {}
 
-  canActivate(
-  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-
-    const isLogged = this.loginService.isLoggedIn();
-    const userRole = this.loginService.getUserRole();
-
-    if (isLogged && userRole === ROLES.NORMAL) {
-      return true;
+  canActivate(): boolean | UrlTree {
+    if (!this.loginService.isLoggedIn()) {
+      return this.router.createUrlTree(['/login']);
     }
 
-    this.router.navigate(['admin']);
-    return false;
-  }
+    if (this.loginService.getUserRole() !== ROLES.NORMAL) {
+      return this.router.createUrlTree(['/admin']);
+    }
 
+    return true;
+  }
 }

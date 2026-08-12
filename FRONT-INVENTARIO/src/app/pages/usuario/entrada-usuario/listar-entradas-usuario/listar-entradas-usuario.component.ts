@@ -1,54 +1,52 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { EntradaService } from 'src/app/core/services/entrada.service';
 import { ReportesService } from 'src/app/core/services/reportes.service';
+import { AlertService } from 'src/app/core/services/alert.service';
 
 @Component({
   selector: 'app-listar-entradas-usuario',
   templateUrl: './listar-entradas-usuario.component.html',
-  styleUrls: ['./listar-entradas-usuario.component.css']
+  styleUrls: ['./listar-entradas-usuario.component.css'],
 })
 export class ListarEntradasUsuarioComponent implements OnInit {
-
   detalleEntrada: any[] = [];
 
+  constructor(
+    private readonly entradaService: EntradaService,
+    private readonly reporteSalida: ReportesService,
+    private readonly alertService: AlertService,
+  ) {}
 
-  constructor(private http: HttpClient,
-    private entradaService: EntradaService,
-    private router: Router,
-    private reporteSalida: ReportesService
-
-  ) { }
-  
-  ngOnInit(): void {
-    this.obtenerEntradas();
+  async ngOnInit(): Promise<void> {
+    await this.obtenerEntradas();
   }
 
-  obtenerEntradas(): void {
-    this.entradaService.listarEntradas().subscribe({
-      next: (detalleEntrada: any[]) => {
-        this.detalleEntrada = detalleEntrada;
-      },
-      error: (error) => {
-        console.error("Error al obtener las entradas:", error);
-      }
-    });
+  async obtenerEntradas(): Promise<void> {
+    try {
+      this.detalleEntrada = await firstValueFrom(
+        this.entradaService.listarEntradas(),
+      );
+    } catch (error) {
+      this.alertService.error('Error', 'No se pudieron cargar las entradas.');
+    }
   }
 
-  descargarPDF() {
-    this.reporteSalida.descargarEntrada().subscribe((data: Blob) => {
+  async descargarPDF(): Promise<void> {
+    try {
+      const data = await firstValueFrom(this.reporteSalida.descargarEntrada());
+
       const blob = new Blob([data], { type: 'application/pdf' });
-      const urlBlob = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = urlBlob;
-      a.download = 'informe_detalle_entradas_productos.pdf';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(urlBlob);
-      document.body.removeChild(a);
-    });
-  }
+      const url = window.URL.createObjectURL(blob);
 
+      const enlace = document.createElement('a');
+      enlace.href = url;
+      enlace.download = 'informe_detalle_entradas_productos.pdf';
+      enlace.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      this.alertService.error('Error', 'No se pudo descargar el reporte.');
+    }
+  }
 }

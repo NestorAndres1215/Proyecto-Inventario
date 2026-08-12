@@ -6,13 +6,13 @@ export const ALERT_MESSAGES = {
   sendError: 'Hubo un problema al enviar la entrada.',
 };
 
- export interface Producto {
+export interface Producto {
   productoId: number;
   nombre?: string;
 }
 
 export interface Usuario {
-username: any;
+  username: any;
   id: number;
   nombre?: string;
 }
@@ -22,5 +22,8 @@ export interface DetalleEntrada {
   descripcion: string;
   cantidad: number;
   usuario: { id: number };
-  entrada: { fechaEntrada: string };
+  entrada: {
+    fechaEntrada: string;
+    usuario: { id: number };
+  };
 }

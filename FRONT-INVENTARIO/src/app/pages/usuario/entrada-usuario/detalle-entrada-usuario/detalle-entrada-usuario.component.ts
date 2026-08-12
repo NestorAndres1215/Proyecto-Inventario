@@ -1,41 +1,43 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AlertService } from 'src/app/core/services/alert.service';
 import { EntradaService } from 'src/app/core/services/entrada.service';
 
 @Component({
   selector: 'app-detalle-entrada-usuario',
   templateUrl: './detalle-entrada-usuario.component.html',
-  styleUrls: ['./detalle-entrada-usuario.component.css']
+  styleUrls: ['./detalle-entrada-usuario.component.css'],
 })
 export class DetalleEntradaUsuarioComponent implements OnInit {
-
   detalleEntrada: any;
-  detalleEntradaId: any = 0;
+  detalleEntradaId = 0;
+
   constructor(
-    private entradaService: EntradaService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) { }
+    private readonly entradaService: EntradaService,
+    private readonly alertService: AlertService,
+    private readonly route: ActivatedRoute,
+  ) {}
 
-  ngOnInit(): void {
-    this.detalleEntradaId = this.route.snapshot.params['detalleEntradaId'];
-    console.log("llego id" + this.detalleEntradaId);
-    console.log(this.route.snapshot.params);
-    this.obtenerEntradaId(this.detalleEntradaId)
+  async ngOnInit(): Promise<void> {
+    this.detalleEntradaId = Number(
+      this.route.snapshot.paramMap.get('detalleEntradaId'),
+    );
 
-
+    await this.obtenerEntradaId(this.detalleEntradaId);
   }
 
-  obtenerEntradaId(detalleEntradaId: number): void {
-    this.entradaService.obtenerEntradaPorId(detalleEntradaId).subscribe({
-      next: (data: any) => {
-        this.detalleEntrada = data;
-        console.log("Detalle de la entrada:", this.detalleEntrada);
-      },
-      error: (error: any) => {
-        console.error("Error al obtener la entrada por ID:", error);
-      }
-    });
-  }
+  async obtenerEntradaId(detalleEntradaId: number): Promise<void> {
+    try {
+      this.detalleEntrada = await firstValueFrom(
+        this.entradaService.obtenerEntradaPorId(detalleEntradaId),
+      );
+    } catch (error) {
 
+      this.alertService.error(
+        'Error',
+        'No se pudo obtener el detalle de la entrada.',
+      );
+    }
+  }
 }

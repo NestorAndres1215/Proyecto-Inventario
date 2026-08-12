@@ -5,28 +5,20 @@ import Swal, { SweetAlertIcon } from 'sweetalert2';
 import { ProductoService } from 'src/app/core/services/producto.service';
 import { ProveedorService } from 'src/app/core/services/proveedor.service';
 import { Producto } from 'src/app/core/models/producto';
+import { AlertService } from 'src/app/core/services/alert.service';
+import { firstValueFrom } from 'rxjs';
 
 interface Proveedor {
   proveedorId: number;
   nombre?: string;
 }
 
-const ALERT_MESSAGES = {
-  missingFields: { icon: 'error' as SweetAlertIcon, title: 'Faltan datos', text: 'Complete los campos.' },
-  saveSuccess: { icon: 'success' as SweetAlertIcon, title: 'Producto guardado', text: 'Se registró correctamente.' },
-  saveError: { icon: 'error' as SweetAlertIcon, title: 'Error', text: 'No se pudo registrar.' },
-  updateSuccess: { icon: 'success' as SweetAlertIcon, title: 'Producto actualizado', text: 'Se actualizó correctamente.' },
-  updateError: { icon: 'error' as SweetAlertIcon, title: 'Error', text: 'No se pudo actualizar.' }
-};
-
-
 @Component({
   selector: 'app-guardar-producto',
   templateUrl: './guardar-inventario.component.html',
-  styleUrls: ['./guardar-inventario.component.css']
+  styleUrls: ['./guardar-inventario.component.css'],
 })
 export class GuardarInventarioComponent implements OnInit {
-
   productoForm!: FormGroup;
   proveedores: Proveedor[] = [];
 
@@ -34,8 +26,9 @@ export class GuardarInventarioComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly productoService: ProductoService,
     private readonly proveedorService: ProveedorService,
-    private readonly router: Router
-  ) { }
+    private readonly router: Router,
+    private readonly alertService: AlertService,
+  ) {}
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -49,38 +42,42 @@ export class GuardarInventarioComponent implements OnInit {
       precio: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       stock: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       ubicacion: ['', Validators.required],
-      proveedorId: ['', Validators.required]
+      proveedorId: ['', Validators.required],
     });
   }
 
-  formSubmit(): void {
+  async formSubmit(): Promise<void> {
     if (this.productoForm.invalid) {
-      Swal.fire(ALERT_MESSAGES.missingFields);
+      this.alertService.advertencia(
+        'Campos incompletos',
+        'Complete todos los campos requeridos.',
+      );
       return;
     }
-
-    const producto: Producto = this.productoForm.value;
-
-    this.productoService.agregarProducto(producto)
-      .subscribe({
-        next: () => {
-          Swal.fire(ALERT_MESSAGES.saveSuccess).then(() => {
-            this.productoForm.reset();
-            this.router.navigate(['/admin/producto']);
-          });
-        },
-        error: (err) => {
-          console.error('Error al guardar producto:', err);
-          Swal.fire(ALERT_MESSAGES.saveError);
-        }
-      });
+    try {
+      const producto: Producto = this.productoForm.value;
+      await firstValueFrom(this.productoService.agregarProducto(producto));
+      this.alertService.aceptacion(
+        'Registro exitoso',
+        'El producto se registró correctamente.',
+      );
+      this.productoForm.reset();
+      this.router.navigate(['/admin/producto']);
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'Ocurrió un error al registrar el producto.',
+      );
+    }
   }
 
-
-  private obtenerProveedores(): void {
-    this.proveedorService.listarProveedoresActivos().subscribe({
-      next: (data: Proveedor[]) => this.proveedores = data,
-      error: (err) => console.error('Error al obtener proveedores:', err)
-    });
+  private async obtenerProveedores(): Promise<void> {
+    try {
+      this.proveedores = await firstValueFrom(
+        this.proveedorService.listarProveedoresActivos(),
+      );
+    } catch (error) {
+      console.error('Error al obtener proveedores:', error);
+    }
   }
 }

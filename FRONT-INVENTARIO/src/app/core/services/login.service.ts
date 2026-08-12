@@ -1,28 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 import baserUrl from '../models/helper';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoginService {
 
-
   public loginStatusSubject = new Subject<boolean>();
-  loginStatusSubjec: any;
 
-  constructor(private http: HttpClient) { }
-
+  constructor(private http: HttpClient) {}
 
   generateToken(loginData: any): Observable<any> {
     return this.http.post(`${baserUrl}/auth/generate-token`, loginData);
   }
 
-
-  getCurrentUser() {
+  getCurrentUser(): Observable<any> {
     return this.http.get(`${baserUrl}/auth/actual-usuario`);
   }
 
@@ -52,17 +47,17 @@ export class LoginService {
 
   getUser(): any | null {
     const userStr = localStorage.getItem('user');
+
     if (userStr) {
       return JSON.parse(userStr);
-    } else {
-      this.logout();
-      return null;
     }
+
+    this.logout();
+    return null;
   }
 
   getUserRole(): string | null {
     const user = this.getUser();
     return user?.authorities?.[0]?.authority || null;
   }
-
 }

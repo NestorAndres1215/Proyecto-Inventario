@@ -5,19 +5,20 @@ import { ProductoService } from 'src/app/core/services/producto.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
 import { ReportesService } from 'src/app/core/services/reportes.service';
+import { firstValueFrom } from 'rxjs';
+import { AlertService } from 'src/app/core/services/alert.service';
 
 @Component({
   selector: 'app-listar-inventario',
   templateUrl: './listar-inventario.component.html',
-  styleUrls: ['./listar-inventario.component.css']
+  styleUrls: ['./listar-inventario.component.css'],
 })
 export class ListarInventarioComponent implements OnInit {
   botonesConfig = {
-
     actualizar: true,
-    desactivar: true
+    desactivar: true,
   };
-  
+
   columnas = [
     { clave: 'productoId', etiqueta: 'Código' },
     { clave: 'nombre', etiqueta: 'Nombre' },
@@ -25,119 +26,116 @@ export class ListarInventarioComponent implements OnInit {
     { clave: 'precio', etiqueta: 'Precio' },
     { clave: 'stock', etiqueta: 'Stock' },
     { clave: 'ubicacion', etiqueta: 'Ubicación' },
-    { clave: 'proveedor.nombre', etiqueta: 'Proveedor' }
+    { clave: 'proveedor.nombre', etiqueta: 'Proveedor' },
   ];
+
   nombre: string = '';
   producto: any = [];
   categoriaId: string = '';
   proveedorId: string = '';
   productos: any[] = [];
   productoId: string = '';
-  constructor(private http: HttpClient,
+
+  constructor(
     private productoService: ProductoService,
     private reporteSalida: ReportesService,
-    private router: Router) { }
+    private router: Router,
+    private readonly alertService: AlertService,
+  ) {}
+
   ngOnInit(): void {
     this.obtenerProducto();
   }
 
-  obtenerProducto(): void {
-    this.productoService.listarProductosActivos().subscribe({
-      next: (productos: any[]) => {
-        this.productos = productos;
-      },
-      error: (error: any) => {
-        console.error("Error al obtener los productos:", error);
-      },
-      complete: () => {
-        console.log("Productos cargados correctamente.");
-      }
-    });
+  async obtenerProducto(): Promise<void> {
+    try {
+      this.productos = await firstValueFrom(
+        this.productoService.listarProductosActivos(),
+      );
+    } catch (error) {
+      console.error('Error al obtener los productos:', error);
+      this.alertService.error('Error', 'No se pudieron obtener los productos.');
+    }
   }
 
-  pageSize = 4; // Tamaño de página (número de elementos por página)
-  pageIndex = 0; // 
+  pageSize = 4;
+  pageIndex = 0;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
   }
 
+  async desactivarProducto(productoId: number): Promise<void> {
+    const confirmado = await this.alertService.confirmacion(
+      '¿Desactivar producto?',
+      'El producto dejará de estar disponible.',
+    );
 
-  desactivarProducto(productoId: any): void {
-    this.productoService.desactivarProducto(productoId).subscribe({
-      next: (respuesta: any) => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Producto desactivado',
-          text: respuesta?.mensaje || 'El producto fue desactivado correctamente.'
-        });
+    if (!confirmado) {
+      return;
+    }
 
-        this.obtenerProducto(); // Volver a cargar la lista
-      },
-      error: (error: any) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al desactivar el producto',
-          text: error?.error?.mensaje || 'Ocurrió un error inesperado.'
-        });
-      },
-      complete: () => {
-        console.log("Petición para desactivar producto finalizada.");
-      }
-    });
-  }
-
-
-  buscarPorNombre() {
     try {
-      if (this.nombre && this.productos) {
-        this.productos = this.productos.filter((proveedor: any) =>
-          proveedor.nombre.toLowerCase().includes(this.nombre.toLowerCase())
-        );
-      } else {
-        this.restaurarProveedores();
-        console.log("Ingrese un nombre o RUC para buscar.");
-      }
-    } catch (error) {
-      console.log("Error en la búsqueda: ", error);
-      // Realizar acciones de manejo de errores, como mostrar un mensaje al usuario
+      const respuesta = await firstValueFrom(
+        this.productoService.desactivarProducto(productoId),
+      );
+
+      this.alertService.aceptacion(
+        'Producto desactivado',
+        respuesta?.mensaje ?? 'El producto fue desactivado correctamente.',
+      );
+
+      await this.obtenerProducto();
+    } catch (error: any) {
+      this.alertService.error(
+        'Error al desactivar el producto',
+        error?.error?.mensaje ?? 'Ocurrió un error inesperado.',
+      );
     }
   }
 
-  restaurarProveedores(): void {
-    this.nombre = ''; // Limpiar filtro / búsqueda
-
-    this.productoService.listarProductosActivos().subscribe({
-      next: (productos: any[]) => {
-        this.productos = productos;
-      },
-      error: (error: any) => {
-        console.error("Error al obtener los productos:", error);
-      },
-      complete: () => {
-        console.log("Listado de productos restaurado correctamente.");
+  async buscarPorNombre(): Promise<void> {
+    try {
+      if (!this.nombre) {
+        await this.restaurarProductos();
+        return;
       }
-    });
+
+      this.productos = this.productos.filter((producto) =>
+        producto.nombre.toLowerCase().includes(this.nombre.toLowerCase()),
+      );
+    } catch (error) {
+      console.error('Error en la búsqueda:', error);
+    }
   }
 
+  async restaurarProductos(): Promise<void> {
+    this.nombre = '';
 
-  descargarPDF() {
-    this.reporteSalida.descargarProducto().subscribe((data: Blob) => {
-      const blob = new Blob([data], { type: 'application/pdf' });
-      const urlBlob = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = urlBlob;
-      a.download = 'informe_detalle_productos.pdf';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(urlBlob);
-      document.body.removeChild(a);
-    });
+    this.productos = await firstValueFrom(
+      this.productoService.listarProductosActivos(),
+    );
   }
+
+  async descargarPDF(): Promise<void> {
+    const data = await firstValueFrom(this.reporteSalida.descargarProducto());
+
+    const blob = new Blob([data], {
+      type: 'application/pdf',
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = 'informe_detalle_productos.pdf';
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+  }
+
   actualizar(producto: any) {
-    console.log(producto)
     this.router.navigate(['/user-dashboard/inventario/', producto.productoId]);
   }
 }

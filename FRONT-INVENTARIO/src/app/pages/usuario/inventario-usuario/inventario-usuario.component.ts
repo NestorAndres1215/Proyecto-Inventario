@@ -3,14 +3,8 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-inventario-usuario',
   templateUrl: './inventario-usuario.component.html',
-  styleUrls: ['./inventario-usuario.component.css']
+  styleUrls: ['./inventario-usuario.component.css'],
 })
-export class InventarioUsuarioComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
+export class InventarioUsuarioComponent {
   activeTab: number = 0;
-
 }

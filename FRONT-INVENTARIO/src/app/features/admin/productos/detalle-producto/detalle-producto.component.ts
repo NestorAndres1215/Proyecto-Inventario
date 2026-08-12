@@ -1,48 +1,59 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ProductoService } from 'src/app/core/services/producto.service';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
+import { ProductoService } from 'src/app/core/services/producto.service';
+import { AlertService } from 'src/app/core/services/alert.service';
 
 @Component({
   selector: 'app-detalle-producto',
   templateUrl: './detalle-producto.component.html',
-  styleUrls: ['./detalle-producto.component.css']
+  styleUrls: ['./detalle-producto.component.css'],
 })
 export class DetalleProductoComponent implements OnInit {
-
   producto: any | null = null;
   productoId: number = 0;
   datosProducto: { clave: string; valor: any }[] = [];
 
   constructor(
     private readonly productoService: ProductoService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly alertService: AlertService,
   ) {}
 
   ngOnInit(): void {
-    this.productoId = Number(this.route.snapshot.paramMap.get('productoId'));
+    this.productoId = Number(
+      this.route.snapshot.paramMap.get('productoId'),
+    );
+
     this.cargarProducto();
   }
 
-  private cargarProducto(): void {
-    this.productoService.obtenerProductoPorId(this.productoId)
-      .subscribe({
-        next: (data: any) => {
-          this.producto = data;
+  private async cargarProducto(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.productoService.obtenerProductoPorId(this.productoId),
+      );
 
-          // 👇 armamos los datos para app-tabla-datos
-          this.datosProducto = [
-            { clave: 'Código', valor: data.productoId },
-            { clave: 'Nombre', valor: data.nombre },
-            { clave: 'Descripción', valor: data.descripcion },
-            { clave: 'Precio', valor: `S/. ${data.precio}` },
-            { clave: 'Stock', valor: data.stock },
-            { clave: 'Proveedor', valor: data.proveedor?.nombre },
-            { clave: 'Estado', valor: data.estado ? 'Activo' : 'Desactivado' }
-          ];
+      this.producto = data;
+
+      this.datosProducto = [
+        { clave: 'Código', valor: data.productoId },
+        { clave: 'Nombre', valor: data.nombre },
+        { clave: 'Descripción', valor: data.descripcion },
+        { clave: 'Precio', valor: `S/. ${data.precio}` },
+        { clave: 'Stock', valor: data.stock },
+        { clave: 'Proveedor', valor: data.proveedor?.nombre },
+        {
+          clave: 'Estado',
+          valor: data.estado ? 'Activo' : 'Desactivado',
         },
-        error: (err) => console.error('Error al obtener producto:', err)
-      });
+      ];
+    } catch (error: any) {
+      this.alertService.error(
+        'Error',
+        error.error?.message ?? 'No se pudo obtener el producto.',
+      );
+    }
   }
 }
